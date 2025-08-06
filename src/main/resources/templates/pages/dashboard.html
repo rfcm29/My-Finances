@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Dashboard</h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-calendar me-1"></i>
+                    <span th:text="${currentMonthName}">Janeiro 2025</span>
+                </p>
+            </div>
+            <div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickActionModal">
+                    <i class="fas fa-plus me-2"></i>Ação Rápida
+                </button>
+            </div>
+        </div>
+
+        <!-- Financial Overview Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100 bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-subtitle mb-2 opacity-75">Saldo Total</h6>
+                                <h4 class="card-title fw-bold mb-0" th:text="${#numbers.formatDecimal(totalBalance, 0, 2)} + '€'">€0.00</h4>
+                            </div>
+                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
+                                <i class="fas fa-wallet fa-lg"></i>
+                            </div>
+                        </div>
+                        <small class="opacity-75">
+                            <span th:text="${accountCount}">0</span> conta(s) ativa(s)
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100 bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-subtitle mb-2 opacity-75">Receitas do Mês</h6>
+                                <h4 class="card-title fw-bold mb-0" th:text="${#numbers.formatDecimal(monthlyIncome, 0, 2)} + '€'">€0.00</h4>
+                            </div>
+                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
+                                <i class="fas fa-arrow-up fa-lg"></i>
+                            </div>
+                        </div>
+                        <small class="opacity-75">
+                            <span th:if="${incomeChange >= 0}" th:text="'+' + ${#numbers.formatDecimal(incomeChange, 0, 1)} + '%'">+0%</span>
+                            <span th:if="${incomeChange < 0}" th:text="${#numbers.formatDecimal(incomeChange, 0, 1)} + '%'">-0%</span>
+                            vs mês anterior
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100 bg-danger text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-subtitle mb-2 opacity-75">Despesas do Mês</h6>
+                                <h4 class="card-title fw-bold mb-0" th:text="${#numbers.formatDecimal(monthlyExpenses, 0, 2)} + '€'">€0.00</h4>
+                            </div>
+                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
+                                <i class="fas fa-arrow-down fa-lg"></i>
+                            </div>
+                        </div>
+                        <small class="opacity-75">
+                            <span th:if="${expenseChange >= 0}" th:text="'+' + ${#numbers.formatDecimal(expenseChange, 0, 1)} + '%'">+0%</span>
+                            <span th:if="${expenseChange < 0}" th:text="${#numbers.formatDecimal(expenseChange, 0, 1)} + '%'">-0%</span>
+                            vs mês anterior
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100" th:classappend="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'bg-info' : 'bg-warning'} + ' text-white'">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-subtitle mb-2 opacity-75">Saldo Mensal</h6>
+                                <h4 class="card-title fw-bold mb-0" th:text="${#numbers.formatDecimal(monthlyNet, 0, 2)} + '€'">€0.00</h4>
+                            </div>
+                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
+                                <i class="fas fa-balance-scale fa-lg"></i>
+                            </div>
+                        </div>
+                        <small class="opacity-75">
+                            <span th:if="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0}">Poupança este mês</span>
+                            <span th:if="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) < 0}">Déficit este mês</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content based on data availability -->
+        <div th:if="${hasData}">
+            <div class="row">
+                <!-- Recent Transactions -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-history me-2 text-primary"></i>
+                                    Transações Recentes
+                                </h5>
+                                <a th:href="@{/transactions}" class="btn btn-outline-primary btn-sm">
+                                    Ver Todas
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div th:if="${recentTransactions.hasContent()}">
+                                <div class="list-group list-group-flush">
+                                    <div th:each="transaction : ${recentTransactions.content}" 
+                                         class="list-group-item border-0">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle me-3 p-2" 
+                                                     th:style="'background-color: ' + ${transaction.category.color} + '20; color: ' + ${transaction.category.color}">
+                                                    <i th:class="${transaction.category.icon} + ' fa-sm'"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0" th:text="${transaction.description}">Transação</h6>
+                                                    <small class="text-muted">
+                                                        <span th:text="${transaction.category.name}">Categoria</span> •
+                                                        <span th:text="${transaction.account.name}">Conta</span> •
+                                                        <span th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy')}">01/01/2025</span>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="fw-bold" 
+                                                      th:classappend="${transaction.type.name() == 'INCOME' ? 'text-success' : 'text-danger'}">
+                                                    <span th:if="${transaction.type.name() == 'INCOME'}">+</span>
+                                                    <span th:if="${transaction.type.name() == 'EXPENSE'}">-</span>
+                                                    <span th:text="${#numbers.formatDecimal(transaction.amount, 0, 2)} + '€'">€0.00</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${!recentTransactions.hasContent()}" class="text-center py-5">
+                                <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Nenhuma transação recente</h5>
+                                <p class="text-muted">Adicione a sua primeira transação</p>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickActionModal">
+                                    <i class="fas fa-plus me-2"></i>Adicionar Transação
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Expense Categories -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-pie me-2 text-primary"></i>
+                                Principais Gastos
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${!#lists.isEmpty(topExpenseCategories)}">
+                                <div th:each="category : ${topExpenseCategories}" class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle me-2 p-1" style="background-color: #dc262620; color: #dc2626">
+                                            <i class="fas fa-circle fa-xs"></i>
+                                        </div>
+                                        <span class="fw-medium" th:text="${category[0]}">Categoria</span>
+                                    </div>
+                                    <span class="text-danger fw-bold" th:text="${#numbers.formatDecimal(category[1], 0, 2)} + '€'">€0.00</span>
+                                </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(topExpenseCategories)}" class="text-center py-4">
+                                <i class="fas fa-chart-pie fa-2x text-muted mb-2"></i>
+                                <p class="text-muted mb-0">Sem dados de gastos este mês</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${!hasData}" class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-chart-line fa-4x text-primary mb-3"></i>
+                <h3 class="fw-bold">Bem-vindo ao MyFinances!</h3>
+                <p class="text-muted mb-4">Comece a gerir as suas finanças criando a sua primeira conta e transação.</p>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-wallet fa-2x text-primary mb-3"></i>
+                                    <h6>1. Criar Conta</h6>
+                                    <p class="small text-muted">Adicione as suas contas bancárias, carteiras, etc.</p>
+                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#quickActionModal">
+                                        Criar Conta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-exchange-alt fa-2x text-success mb-3"></i>
+                                    <h6>2. Adicionar Transação</h6>
+                                    <p class="small text-muted">Registe receitas e despesas</p>
+                                    <button class="btn btn-outline-success btn-sm" disabled>
+                                        Adicionar Transação
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-chart-bar fa-2x text-info mb-3"></i>
+                                    <h6>3. Ver Relatórios</h6>
+                                    <p class="small text-muted">Analise os seus padrões financeiros</p>
+                                    <button class="btn btn-outline-info btn-sm" disabled>
+                                        Ver Relatórios
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Action Modal -->
+        <div class="modal fade" id="quickActionModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ação Rápida</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/accounts/add}" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-wallet me-2"></i>Adicionar Conta
+                            </a>
+                            <a th:href="@{/transactions/add}" class="btn btn-outline-success btn-lg" th:if="${accountCount > 0}">
+                                <i class="fas fa-plus me-2"></i>Nova Transação
+                            </a>
+                            <a th:href="@{/investments/add}" class="btn btn-outline-info btn-lg">
+                                <i class="fas fa-chart-line me-2"></i>Adicionar Investimento
+                            </a>
+                            <a th:href="@{/budgets/add}" class="btn btn-outline-warning btn-lg">
+                                <i class="fas fa-bullseye me-2"></i>Criar Orçamento
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

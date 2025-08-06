@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Editar Transação</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Editar Transação</h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-edit me-1"></i>Modificar os detalhes da transação
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/transactions}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-receipt me-2"></i>Detalhes da Transação
+                        </h6>
+                        <small class="text-muted">
+                            Criada em <span th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</span>
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/transactions/edit/{id}(id=${transaction.id})}" method="post" th:object="${transactionForm}">
+                            
+                            <!-- Transaction Type -->
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Transação</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="type" id="income" value="INCOME" th:field="*{type}">
+                                        <label class="btn btn-outline-success w-100" for="income">
+                                            <i class="fas fa-plus-circle me-2"></i>Receita
+                                        </label>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="type" id="expense" value="EXPENSE" th:field="*{type}">
+                                        <label class="btn btn-outline-danger w-100" for="expense">
+                                            <i class="fas fa-minus-circle me-2"></i>Despesa
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">
+                                    <i class="fas fa-euro-sign me-2"></i>Valor
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" min="0.01" class="form-control form-control-lg" 
+                                           th:field="*{amount}"
+                                           th:class="${#fields.hasErrors('amount')} ? 'form-control form-control-lg is-invalid' : 'form-control form-control-lg'"
+                                           placeholder="0,00" required>
+                                    <span class="input-group-text">€</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-file-alt me-2"></i>Descrição
+                                </label>
+                                <input type="text" class="form-control" 
+                                       th:field="*{description}"
+                                       th:class="${#fields.hasErrors('description')} ? 'form-control is-invalid' : 'form-control'"
+                                       placeholder="Descreva a transação" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                            </div>
+
+                            <!-- Account -->
+                            <div class="mb-3">
+                                <label for="accountId" class="form-label">
+                                    <i class="fas fa-wallet me-2"></i>Conta
+                                </label>
+                                <select class="form-select" 
+                                        th:field="*{accountId}"
+                                        th:class="${#fields.hasErrors('accountId')} ? 'form-select is-invalid' : 'form-select'"
+                                        required>
+                                    <option value="">Selecione uma conta</option>
+                                    <option th:each="account : ${accounts}" 
+                                            th:value="${account.id}" 
+                                            th:text="${account.name} + ' (' + ${#numbers.formatDecimal(account.balance, 1, 2)} + '€)'">
+                                        Conta Corrente (1.234,56€)
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('accountId')}" th:errors="*{accountId}"></div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="mb-3">
+                                <label for="categoryId" class="form-label">
+                                    <i class="fas fa-tags me-2"></i>Categoria
+                                </label>
+                                <select class="form-select" 
+                                        th:field="*{categoryId}"
+                                        th:class="${#fields.hasErrors('categoryId')} ? 'form-select is-invalid' : 'form-select'"
+                                        required>
+                                    <option value="">Selecione uma categoria</option>
+                                    <optgroup th:each="categoryGroup : ${#maps.toMap(categories.^[parent == null], 'id', 'name')}"
+                                              th:label="${categoryGroup.value}">
+                                        <option th:value="${categoryGroup.key}" 
+                                                th:text="${categoryGroup.value}">Categoria Principal</option>
+                                        <option th:each="subcategory : ${categories.?[parent != null && parent.id == categoryGroup.key]}"
+                                                th:value="${subcategory.id}" 
+                                                th:text="'  → ' + ${subcategory.name}">  → Subcategoria</option>
+                                    </optgroup>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="mb-4">
+                                <label for="date" class="form-label">
+                                    <i class="fas fa-calendar me-2"></i>Data
+                                </label>
+                                <input type="date" class="form-control" 
+                                       th:field="*{date}"
+                                       th:class="${#fields.hasErrors('date')} ? 'form-control is-invalid' : 'form-control'"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-danger" 
+                                        onclick="confirmDelete()"
+                                        th:data-id="${transaction.id}"
+                                        th:data-description="${transaction.description}">
+                                    <i class="fas fa-trash me-2"></i>Eliminar
+                                </button>
+                                <div>
+                                    <a th:href="@{/transactions}" class="btn btn-outline-secondary me-2">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Guardar Alterações
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Transaction History Card -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-history me-2"></i>Histórico
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">Transação criada</h6>
+                                    <p class="timeline-text text-muted small">
+                                        <span th:text="${#temporals.format(transaction.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="timeline-item" th:if="${transaction.updatedAt != transaction.createdAt}">
+                                <div class="timeline-marker bg-info"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">Última modificação</h6>
+                                    <p class="timeline-text text-muted small">
+                                        <span th:text="${#temporals.format(transaction.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 11:15</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            Confirmar Eliminação
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza que deseja eliminar a transação <strong id="deleteDescription"></strong>?</p>
+                        <p class="text-muted small mb-0">Esta ação não pode ser desfeita e irá afetar o saldo da conta.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="deleteForm" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="scripts">
+        function confirmDelete() {
+            const button = document.querySelector('[onclick="confirmDelete()"]');
+            const id = button.getAttribute('data-id');
+            const description = button.getAttribute('data-description');
+            
+            document.getElementById('deleteDescription').textContent = description;
+            document.getElementById('deleteForm').action = '/transactions/delete/' + id;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+        
+        // Format amount input
+        const amountInput = document.querySelector('input[name="amount"]');
+        if (amountInput) {
+            amountInput.addEventListener('input', function() {
+                let value = this.value.replace(/[^\d.,]/g, '');
+                this.value = value;
+            });
+        }
+    </script>
+
+    <style layout:fragment="styles">
+        .timeline {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -2rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .timeline-title {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .timeline-text {
+            margin: 0;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Transferir Entre Contas</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Transferir Entre Contas</h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-exchange-alt me-1"></i>Mover dinheiro entre suas contas
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/accounts}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-exchange-alt me-2"></i>Detalhes da Transferência
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/accounts/transfer}" method="post" th:object="${transferForm}">
+                            
+                            <!-- From Account -->
+                            <div class="mb-3">
+                                <label for="fromAccountId" class="form-label">
+                                    <i class="fas fa-arrow-up me-2"></i>Da Conta (Origem)
+                                </label>
+                                <select class="form-select form-select-lg" 
+                                        th:field="*{fromAccountId}"
+                                        th:class="${#fields.hasErrors('fromAccountId')} ? 'form-select form-select-lg is-invalid' : 'form-select form-select-lg'"
+                                        required id="fromAccount">
+                                    <option value="">Selecione a conta de origem</option>
+                                    <option th:each="account : ${accounts}" 
+                                            th:value="${account.id}" 
+                                            th:text="${account.name} + ' (' + ${#numbers.formatDecimal(account.balance, 1, 2)} + '€)'"
+                                            th:data-balance="${account.balance}">
+                                        Conta Corrente (1.234,56€)
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('fromAccountId')}" th:errors="*{fromAccountId}"></div>
+                            </div>
+
+                            <!-- Transfer Amount -->
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">
+                                    <i class="fas fa-euro-sign me-2"></i>Valor da Transferência
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <input type="number" step="0.01" min="0.01" class="form-control" 
+                                           th:field="*{amount}"
+                                           th:class="${#fields.hasErrors('amount')} ? 'form-control is-invalid' : 'form-control'"
+                                           placeholder="0,00" required id="transferAmount">
+                                    <span class="input-group-text">€</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
+                                </div>
+                                <div class="form-text" id="availableBalance" style="display: none;">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Saldo disponível: <span id="balanceAmount">0,00€</span>
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Transfer Arrow Visual -->
+                            <div class="text-center mb-3">
+                                <i class="fas fa-arrow-down text-primary fa-2x"></i>
+                            </div>
+
+                            <!-- To Account -->
+                            <div class="mb-3">
+                                <label for="toAccountId" class="form-label">
+                                    <i class="fas fa-arrow-down me-2"></i>Para a Conta (Destino)
+                                </label>
+                                <select class="form-select form-select-lg" 
+                                        th:field="*{toAccountId}"
+                                        th:class="${#fields.hasErrors('toAccountId')} ? 'form-select form-select-lg is-invalid' : 'form-select form-select-lg'"
+                                        required id="toAccount">
+                                    <option value="">Selecione a conta de destino</option>
+                                    <option th:each="account : ${accounts}" 
+                                            th:value="${account.id}" 
+                                            th:text="${account.name} + ' (' + ${#numbers.formatDecimal(account.balance, 1, 2)} + '€)'">
+                                        Conta Poupança (2.345,67€)
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('toAccountId')}" th:errors="*{toAccountId}"></div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-4">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-file-alt me-2"></i>Descrição (opcional)
+                                </label>
+                                <input type="text" class="form-control" 
+                                       th:field="*{description}"
+                                       placeholder="Ex: Transferência para poupança">
+                                <div class="form-text">
+                                    <small class="text-muted">Se não especificado, será usado "Transferência entre contas"</small>
+                                </div>
+                            </div>
+
+                            <!-- Transfer Preview -->
+                            <div class="alert alert-info" id="transferPreview" style="display: none;">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-eye me-2"></i>Resumo da Transferência
+                                </h6>
+                                <p class="mb-1">
+                                    <strong id="previewFromAccount">-</strong> → <strong id="previewToAccount">-</strong>
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Valor:</strong> <span id="previewAmount">0,00€</span>
+                                </p>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a th:href="@{/accounts}" class="btn btn-outline-secondary me-md-2">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary" id="confirmTransfer">
+                                    <i class="fas fa-exchange-alt me-2"></i>Confirmar Transferência
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Transfer Info Card -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>Como Funciona
+                        </h6>
+                        <ul class="small text-muted mb-0">
+                            <li>O valor será <strong>retirado</strong> da conta de origem</li>
+                            <li>O mesmo valor será <strong>adicionado</strong> à conta de destino</li>
+                            <li>Duas transações serão criadas automaticamente</li>
+                            <li>A transferência é instantânea entre suas contas</li>
+                            <li>Certifique-se de que a conta de origem tem saldo suficiente</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Recent Transfers (if any) -->
+                <div class="card mt-4" th:if="${not #lists.isEmpty(accounts)}">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-clock me-2"></i>Ações Rápidas
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <a th:href="@{/transactions/add}" class="btn btn-outline-primary w-100 h-100">
+                                    <i class="fas fa-plus me-2"></i>
+                                    <div>Nova Transação</div>
+                                    <small class="text-muted">Receita ou despesa</small>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a th:href="@{/accounts/add}" class="btn btn-outline-success w-100 h-100">
+                                    <i class="fas fa-wallet me-2"></i>
+                                    <div>Nova Conta</div>
+                                    <small class="text-muted">Criar conta financeira</small>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a th:href="@{/transactions}" class="btn btn-outline-info w-100 h-100">
+                                    <i class="fas fa-list me-2"></i>
+                                    <div>Ver Transações</div>
+                                    <small class="text-muted">Histórico completo</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="scripts">
+        document.addEventListener('DOMContentLoaded', function() {
+            const fromAccountSelect = document.getElementById('fromAccount');
+            const toAccountSelect = document.getElementById('toAccount');
+            const amountInput = document.getElementById('transferAmount');
+            const availableBalance = document.getElementById('availableBalance');
+            const balanceAmount = document.getElementById('balanceAmount');
+            const transferPreview = document.getElementById('transferPreview');
+            const confirmButton = document.getElementById('confirmTransfer');
+            
+            // Show available balance when from account is selected
+            fromAccountSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                
+                if (selectedOption.value) {
+                    const balance = selectedOption.dataset.balance;
+                    balanceAmount.textContent = parseFloat(balance).toLocaleString('pt-PT', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) + '€';
+                    availableBalance.style.display = 'block';
+                    
+                    // Validate amount against available balance
+                    validateTransfer();
+                } else {
+                    availableBalance.style.display = 'none';
+                }
+                
+                updatePreview();
+                filterDestinationAccounts();
+            });
+            
+            // Filter destination accounts (can't be the same as origin)
+            function filterDestinationAccounts() {
+                const fromAccountId = fromAccountSelect.value;
+                const toAccountOptions = toAccountSelect.options;
+                
+                for (let i = 1; i < toAccountOptions.length; i++) {
+                    const option = toAccountOptions[i];
+                    if (option.value === fromAccountId) {
+                        option.style.display = 'none';
+                        if (toAccountSelect.value === fromAccountId) {
+                            toAccountSelect.value = '';
+                        }
+                    } else {
+                        option.style.display = '';
+                    }
+                }
+                
+                updatePreview();
+            }
+            
+            // Update transfer preview
+            function updatePreview() {
+                const fromText = fromAccountSelect.options[fromAccountSelect.selectedIndex]?.text;
+                const toText = toAccountSelect.options[toAccountSelect.selectedIndex]?.text;
+                const amount = amountInput.value;
+                
+                if (fromAccountSelect.value && toAccountSelect.value && amount) {
+                    document.getElementById('previewFromAccount').textContent = 
+                        fromText ? fromText.split(' (')[0] : '-';
+                    document.getElementById('previewToAccount').textContent = 
+                        toText ? toText.split(' (')[0] : '-';
+                    document.getElementById('previewAmount').textContent = 
+                        parseFloat(amount).toLocaleString('pt-PT', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }) + '€';
+                    
+                    transferPreview.style.display = 'block';
+                } else {
+                    transferPreview.style.display = 'none';
+                }
+            }
+            
+            // Validate transfer amount against available balance
+            function validateTransfer() {
+                const selectedFromOption = fromAccountSelect.options[fromAccountSelect.selectedIndex];
+                const amount = parseFloat(amountInput.value) || 0;
+                
+                if (selectedFromOption && selectedFromOption.dataset.balance) {
+                    const availableBalance = parseFloat(selectedFromOption.dataset.balance);
+                    
+                    if (amount > availableBalance) {
+                        amountInput.setCustomValidity('Valor superior ao saldo disponível');
+                        confirmButton.disabled = true;
+                    } else {
+                        amountInput.setCustomValidity('');
+                        confirmButton.disabled = false;
+                    }
+                }
+            }
+            
+            // Event listeners
+            toAccountSelect.addEventListener('change', updatePreview);
+            amountInput.addEventListener('input', function() {
+                validateTransfer();
+                updatePreview();
+            });
+            
+            // Format amount input
+            amountInput.addEventListener('input', function() {
+                let value = this.value.replace(/[^\d.,]/g, '');
+                this.value = value;
+            });
+            
+            // Auto-focus amount after selecting both accounts
+            function checkAutoFocus() {
+                if (fromAccountSelect.value && toAccountSelect.value && !amountInput.value) {
+                    setTimeout(() => amountInput.focus(), 100);
+                }
+            }
+            
+            fromAccountSelect.addEventListener('change', checkAutoFocus);
+            toAccountSelect.addEventListener('change', checkAutoFocus);
+        });
+    </script>
+
+    <style layout:fragment="styles">
+        #transferPreview {
+            border-left: 4px solid #0d6efd;
+        }
+        
+        .btn.h-100 {
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        select option[style*="display: none"] {
+            display: none !important;
+        }
+    </style>
+</body>
+</html>

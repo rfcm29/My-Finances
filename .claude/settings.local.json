@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn clean:*)",
+      "Bash(./mvnw:*)",
+      "Bash(mvnw.cmd clean:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)",
+      "Bash(.mvnw.cmd clean compile)",
+      "Bash(cmd.exe /c \"mvnw.cmd clean compile\")",
+      "Bash(mvn:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(java:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(cmd.exe /c \"cd /d C:\\Users\\rfcm2\\IdeaProjects\\MyFinances && mvnw.cmd clean compile\")",
+      "Bash(cmd.exe:*)",
+      "Bash(.mvnw.cmd clean compile -q)",
+      "Bash(where java)"
+    ],
+    "deny": []
+  }
+}

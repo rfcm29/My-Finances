@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title != null ? title + ' - MyFinances' : 'MyFinances - Gestão Financeira Pessoal'}">MyFinances</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link th:href="@{/css/main.css}" rel="stylesheet">
+    <link th:href="@{/css/dashboard.css}" rel="stylesheet">
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+</head>
+<body class="bg-light">
+        
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm" sec:authorize="isAuthenticated()">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" th:href="@{/dashboard}">
+                    <i class="fas fa-chart-pie me-2"></i>MyFinances
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/dashboard}" th:classappend="${currentPath == '/dashboard' ? 'active' : ''}">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/transactions}" th:classappend="${#strings.startsWith(currentPath, '/transactions') ? 'active' : ''}">
+                                <i class="fas fa-exchange-alt me-1"></i>Transações
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/accounts}" th:classappend="${#strings.startsWith(currentPath, '/accounts') ? 'active' : ''}">
+                                <i class="fas fa-wallet me-1"></i>Contas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/investments}" th:classappend="${#strings.startsWith(currentPath, '/investments') ? 'active' : ''}">
+                                <i class="fas fa-chart-line me-1"></i>Investimentos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/budgets}" th:classappend="${#strings.startsWith(currentPath, '/budgets') ? 'active' : ''}">
+                                <i class="fas fa-bullseye me-1"></i>Orçamentos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/reports}" th:classappend="${#strings.startsWith(currentPath, '/reports') ? 'active' : ''}">
+                                <i class="fas fa-chart-bar me-1"></i>Relatórios
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>
+                                <span sec:authentication="name">User</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" th:href="@{/profile}">
+                                    <i class="fas fa-user me-2"></i>Perfil
+                                </a></li>
+                                <li><a class="dropdown-item" th:href="@{/settings}">
+                                    <i class="fas fa-cog me-2"></i>Definições
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" class="d-inline">
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container-fluid py-4" sec:authorize="isAuthenticated()">
+            <!-- Flash Messages -->
+            <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${message}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <!-- Page Content -->
+            <div layout:fragment="content">
+                <!-- Content will be inserted here -->
+            </div>
+        </main>
+
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+                integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+        
+        <!-- Custom JS -->
+        <script th:src="@{/js/main.js}"></script>
+        <script th:src="@{/js/htmx-config.js}"></script>
+</body>
+</html>

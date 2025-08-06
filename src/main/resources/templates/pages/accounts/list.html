@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Contas</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Contas</h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-wallet me-1"></i>
+                    <span th:text="${accountCount}">0</span> contas ativas
+                </p>
+            </div>
+            <div class="btn-group">
+                <a th:href="@{/accounts/add}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Nova Conta
+                </a>
+                <a th:href="@{/accounts/transfer}" class="btn btn-outline-primary">
+                    <i class="fas fa-exchange-alt me-2"></i>Transferir
+                </a>
+            </div>
+        </div>
+
+        <!-- Balance Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Saldo Total</h6>
+                                <h4 class="mb-0" th:text="${#numbers.formatDecimal(totalBalance, 1, 2)} + '€'">1.234,56€</h4>
+                            </div>
+                            <div class="opacity-75">
+                                <i class="fas fa-coins fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Contas à Ordem</h6>
+                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(checkingBalance, 1, 2)} + '€'">856,78€</h5>
+                            </div>
+                            <div class="opacity-75">
+                                <i class="fas fa-university fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Poupanças</h6>
+                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(savingsBalance, 1, 2)} + '€'">377,78€</h5>
+                            </div>
+                            <div class="opacity-75">
+                                <i class="fas fa-piggy-bank fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Dinheiro</h6>
+                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(cashBalance, 1, 2)} + '€'">50,00€</h5>
+                            </div>
+                            <div class="opacity-75">
+                                <i class="fas fa-money-bill-wave fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts List -->
+        <div class="row">
+            <!-- Active Accounts -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-list me-2"></i>Suas Contas
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${not #lists.isEmpty(accounts)}" class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nome da Conta</th>
+                                        <th>Tipo</th>
+                                        <th>Moeda</th>
+                                        <th class="text-end">Saldo</th>
+                                        <th>Status</th>
+                                        <th width="150">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="account : ${accounts}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <i th:if="${account.type.name() == 'CHECKING'}" class="fas fa-university text-primary"></i>
+                                                    <i th:if="${account.type.name() == 'SAVINGS'}" class="fas fa-piggy-bank text-success"></i>
+                                                    <i th:if="${account.type.name() == 'CREDIT_CARD'}" class="fas fa-credit-card text-danger"></i>
+                                                    <i th:if="${account.type.name() == 'CASH'}" class="fas fa-money-bill-wave text-warning"></i>
+                                                    <i th:unless="${account.type.name() == 'CHECKING' or account.type.name() == 'SAVINGS' or account.type.name() == 'CREDIT_CARD' or account.type.name() == 'CASH'}" class="fas fa-wallet text-secondary"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium" th:text="${account.name}">Conta Corrente</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span th:if="${account.type.name() == 'CHECKING'}" class="badge bg-primary">Conta à Ordem</span>
+                                            <span th:if="${account.type.name() == 'SAVINGS'}" class="badge bg-success">Poupança</span>
+                                            <span th:if="${account.type.name() == 'CREDIT_CARD'}" class="badge bg-danger">Cartão de Crédito</span>
+                                            <span th:if="${account.type.name() == 'CASH'}" class="badge bg-warning">Dinheiro</span>
+                                            <span th:unless="${account.type.name() == 'CHECKING' or account.type.name() == 'SAVINGS' or account.type.name() == 'CREDIT_CARD' or account.type.name() == 'CASH'}" class="badge bg-secondary">Outro</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted" th:text="${account.currency}">EUR</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-bold fs-6" 
+                                                  th:classappend="${account.balance >= 0} ? 'text-success' : 'text-danger'"
+                                                  th:text="${#numbers.formatDecimal(account.balance, 1, 2)} + '€'">
+                                                1.234,56€
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${account.active}" class="badge bg-success">Ativa</span>
+                                            <span th:unless="${account.active}" class="badge bg-secondary">Inativa</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a th:href="@{/accounts/edit/{id}(id=${account.id})}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button th:if="${account.active}" 
+                                                        type="button" class="btn btn-outline-warning btn-sm" 
+                                                        onclick="confirmAction(this, 'deactivate')"
+                                                        th:data-id="${account.id}"
+                                                        th:data-name="${account.name}">
+                                                    <i class="fas fa-pause"></i>
+                                                </button>
+                                                <button th:unless="${account.active}" 
+                                                        type="button" class="btn btn-outline-success btn-sm" 
+                                                        onclick="confirmAction(this, 'reactivate')"
+                                                        th:data-id="${account.id}"
+                                                        th:data-name="${account.name}">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div th:if="${#lists.isEmpty(accounts)}" class="text-center py-5">
+                            <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhuma conta encontrada</h5>
+                            <p class="text-muted mb-4">Comece por criar a sua primeira conta financeira</p>
+                            <a th:href="@{/accounts/add}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Nova Conta
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <a th:href="@{/transactions/add}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-plus me-2"></i>
+                                    <div>Nova Transação</div>
+                                    <small class="text-muted">Adicionar receita/despesa</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a th:href="@{/accounts/transfer}" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-exchange-alt me-2"></i>
+                                    <div>Transferir</div>
+                                    <small class="text-muted">Entre contas</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a th:href="@{/accounts/add}" class="btn btn-outline-info w-100">
+                                    <i class="fas fa-wallet me-2"></i>
+                                    <div>Nova Conta</div>
+                                    <small class="text-muted">Criar conta financeira</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a th:href="@{/reports}" class="btn btn-outline-warning w-100">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    <div>Relatórios</div>
+                                    <small class="text-muted">Ver análises</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Confirmation Modal -->
+        <div class="modal fade" id="actionModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-question-circle text-warning me-2"></i>
+                            <span id="actionTitle">Confirmar Ação</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="actionDescription">Tem certeza que deseja realizar esta ação?</p>
+                        <p class="text-muted small mb-0">Esta ação pode ser revertida posteriormente.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="actionForm" method="post" style="display: inline;">
+                            <button type="submit" class="btn" id="actionButton">
+                                <span id="actionButtonText">Confirmar</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="scripts">
+        function confirmAction(button, action) {
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+            
+            const modal = document.getElementById('actionModal');
+            const title = document.getElementById('actionTitle');
+            const description = document.getElementById('actionDescription');
+            const form = document.getElementById('actionForm');
+            const actionButton = document.getElementById('actionButton');
+            const buttonText = document.getElementById('actionButtonText');
+            
+            if (action === 'deactivate') {
+                title.textContent = 'Desativar Conta';
+                description.textContent = `Tem certeza que deseja desativar a conta "${name}"?`;
+                form.action = `/accounts/deactivate/${id}`;
+                actionButton.className = 'btn btn-warning';
+                buttonText.innerHTML = '<i class="fas fa-pause me-2"></i>Desativar';
+            } else if (action === 'reactivate') {
+                title.textContent = 'Reativar Conta';
+                description.textContent = `Tem certeza que deseja reativar a conta "${name}"?`;
+                form.action = `/accounts/reactivate/${id}`;
+                actionButton.className = 'btn btn-success';
+                buttonText.innerHTML = '<i class="fas fa-play me-2"></i>Reativar';
+            }
+            
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+        }
+    </script>
+
+    <style layout:fragment="styles">
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .quick-action-btn {
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-decoration: none;
+        }
+        
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease-in-out;
+        }
+    </style>
+</body>
+</html>

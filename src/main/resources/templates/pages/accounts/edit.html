@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Editar Conta</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Editar Conta</h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-edit me-1"></i>Atualizar informações da conta
+                    <span th:if="${account}" th:text="' - ' + ${account.name}"></span>
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/accounts}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-wallet me-2"></i>Detalhes da Conta
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/accounts/edit/{id}(id=${account.id})}" method="post" th:object="${accountForm}">
+                            
+                            <!-- Account Name -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-tag me-2"></i>Nome da Conta
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       th:field="*{name}"
+                                       th:class="${#fields.hasErrors('name')} ? 'form-control form-control-lg is-invalid' : 'form-control form-control-lg'"
+                                       placeholder="Ex: Conta Corrente CGD" required autofocus>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </div>
+
+                            <!-- Account Type -->
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Conta</label>
+                                <div class="row g-2">
+                                    <div class="col-6 col-md-3">
+                                        <input type="radio" class="btn-check" name="type" id="checking" value="CHECKING" th:field="*{type}">
+                                        <label class="btn btn-outline-primary w-100 account-type-btn" for="checking">
+                                            <i class="fas fa-university d-block mb-1"></i>
+                                            <small>Conta à Ordem</small>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="radio" class="btn-check" name="type" id="savings" value="SAVINGS" th:field="*{type}">
+                                        <label class="btn btn-outline-success w-100 account-type-btn" for="savings">
+                                            <i class="fas fa-piggy-bank d-block mb-1"></i>
+                                            <small>Poupança</small>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="radio" class="btn-check" name="type" id="credit" value="CREDIT_CARD" th:field="*{type}">
+                                        <label class="btn btn-outline-danger w-100 account-type-btn" for="credit">
+                                            <i class="fas fa-credit-card d-block mb-1"></i>
+                                            <small>Cartão Crédito</small>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="radio" class="btn-check" name="type" id="cash" value="CASH" th:field="*{type}">
+                                        <label class="btn btn-outline-warning w-100 account-type-btn" for="cash">
+                                            <i class="fas fa-money-bill-wave d-block mb-1"></i>
+                                            <small>Dinheiro</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                            </div>
+
+                            <!-- Currency -->
+                            <div class="mb-3">
+                                <label for="currency" class="form-label">
+                                    <i class="fas fa-coins me-2"></i>Moeda
+                                </label>
+                                <select class="form-select" 
+                                        th:field="*{currency}"
+                                        th:class="${#fields.hasErrors('currency')} ? 'form-select is-invalid' : 'form-select'"
+                                        required>
+                                    <option value="EUR">EUR - Euro (€)</option>
+                                    <option value="USD">USD - Dólar Americano ($)</option>
+                                    <option value="GBP">GBP - Libra Esterlina (£)</option>
+                                    <option value="CHF">CHF - Franco Suíço (Fr)</option>
+                                    <option value="JPY">JPY - Yen Japonês (¥)</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('currency')}" th:errors="*{currency}"></div>
+                            </div>
+
+                            <!-- Current Balance -->
+                            <div class="mb-4">
+                                <label for="initialBalance" class="form-label">
+                                    <i class="fas fa-euro-sign me-2"></i>Saldo Atual
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" class="form-control form-control-lg" 
+                                           th:field="*{initialBalance}"
+                                           th:class="${#fields.hasErrors('initialBalance')} ? 'form-control form-control-lg is-invalid' : 'form-control form-control-lg'"
+                                           placeholder="0,00">
+                                    <span class="input-group-text">€</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('initialBalance')}" th:errors="*{initialBalance}"></div>
+                                </div>
+                                <div class="form-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Alterar este valor criará uma transação de ajuste para refletir a diferença.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a th:href="@{/accounts}" class="btn btn-outline-secondary me-md-2">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Atualizar Conta
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Account History Card -->
+                <div class="card mt-4" th:if="${account}">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-history me-2"></i>Informações da Conta
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">Criada em:</small>
+                                    <small class="fw-medium" th:text="${#temporals.format(account.createdAt, 'dd/MM/yyyy')}">01/01/2024</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">Status:</small>
+                                    <span th:if="${account.active}" class="badge bg-success">Ativa</span>
+                                    <span th:unless="${account.active}" class="badge bg-secondary">Inativa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips Card -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>Dicas
+                        </h6>
+                        <ul class="small text-muted mb-0">
+                            <li>Alterações no saldo criarão uma transação de ajuste automática</li>
+                            <li>O tipo de conta afeta como ela aparece nos relatórios</li>
+                            <li>Contas inativas não podem receber novas transações</li>
+                            <li>Pode ativar/desativar a conta na página de listagem</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="scripts">
+        // Format balance input
+        const balanceInput = document.querySelector('input[name="initialBalance"]');
+        if (balanceInput) {
+            balanceInput.addEventListener('input', function() {
+                let value = this.value.replace(/[^\d.,]/g, '');
+                this.value = value;
+            });
+        }
+    </script>
+
+    <style layout:fragment="styles">
+        .account-type-btn {
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0.5rem;
+        }
+        
+        .account-type-btn i {
+            font-size: 1.5rem;
+        }
+        
+        .account-type-btn:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease-in-out;
+        }
+    </style>
+</body>
+</html>

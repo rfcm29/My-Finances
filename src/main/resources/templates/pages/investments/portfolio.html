@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Portfolio de Investimentos</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Portfolio de Investimentos</h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-chart-line me-1"></i>
+                    <span th:text="${portfolio.totalInvestments}">0</span> investimentos ativos
+                </p>
+            </div>
+            <div class="btn-group">
+                <a th:href="@{/investments/add}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Novo Investimento
+                </a>
+                <a th:href="@{/investments/products}" class="btn btn-outline-primary">
+                    <i class="fas fa-cube me-2"></i>Produtos
+                </a>
+            </div>
+        </div>
+
+        <!-- Portfolio Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Valor Total</h6>
+                                <h4 class="mb-0" th:text="${#numbers.formatDecimal(portfolio.totalCurrentValue, 1, 2)} + '€'">0,00€</h4>
+                            </div>
+                            <div class="opacity-75">
+                                <i class="fas fa-wallet fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Investido</h6>
+                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(portfolio.totalInvestedAmount, 1, 2)} + '€'">0,00€</h5>
+                            </div>
+                            <div class="opacity-75">
+                                <i class="fas fa-hand-holding-usd fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-white" th:classappend="${portfolio.totalGainLoss >= 0} ? 'bg-success' : 'bg-danger'">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Ganho/Perda</h6>
+                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(portfolio.totalGainLoss, 1, 2)} + '€'">0,00€</h5>
+                            </div>
+                            <div class="opacity-75">
+                                <i th:class="${portfolio.totalGainLoss >= 0} ? 'fas fa-arrow-up fa-2x' : 'fas fa-arrow-down fa-2x'"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card text-white" th:classappend="${portfolio.totalGainLossPercentage >= 0} ? 'bg-success' : 'bg-danger'">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">Rentabilidade</h6>
+                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(portfolio.totalGainLossPercentage, 1, 2)} + '%'">0,00%</h5>
+                            </div>
+                            <div class="opacity-75">
+                                <i class="fas fa-percentage fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">
+                            <i class="fas fa-search me-1"></i>Pesquisar
+                        </label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               th:value="${searchTerm}" placeholder="Nome ou símbolo...">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="type" class="form-label">
+                            <i class="fas fa-filter me-1"></i>Tipo
+                        </label>
+                        <select class="form-select" id="type" name="type">
+                            <option value="">Todos os tipos</option>
+                            <option th:each="investType : ${investmentTypes}" 
+                                    th:value="${investType}" 
+                                    th:text="${investType.displayName}"
+                                    th:selected="${selectedType != null && selectedType == investType}">
+                                Tipo
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-filter me-1"></i>Filtrar
+                        </button>
+                        <a th:href="@{/investments}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Limpar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Portfolio Allocation -->
+        <div class="row mb-4" th:if="${not #lists.isEmpty(allocations)}">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>Distribuição por Tipo
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div th:each="allocation : ${allocations}" class="col-md-6 col-lg-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <div class="progress" style="height: 8px; width: 60px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 th:style="'width: ' + ${allocation.percentage} + '%'">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-medium" th:text="${allocation.type.displayName}">Tipo</div>
+                                        <div class="small text-muted">
+                                            <span th:text="${#numbers.formatDecimal(allocation.value, 1, 2)} + '€'">0€</span>
+                                            (<span th:text="${#numbers.formatDecimal(allocation.percentage, 1, 1)} + '%'">0%</span>)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investments List -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-list me-2"></i>Seus Investimentos
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${not #lists.isEmpty(investments)}" class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Investimento</th>
+                                        <th>Tipo</th>
+                                        <th class="text-end">Quantidade</th>
+                                        <th class="text-end">Preço Compra</th>
+                                        <th class="text-end">Preço Atual</th>
+                                        <th class="text-end">Valor Total</th>
+                                        <th class="text-end">Ganho/Perda</th>
+                                        <th width="200">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="investment : ${investments}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <i class="fas fa-chart-line text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium" th:text="${investment.name}">Nome</div>
+                                                    <div class="small text-muted" th:if="${investment.symbol}" th:text="${investment.symbol}">SYMBOL</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary" th:text="${investment.type.displayName}">Tipo</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span th:text="${#numbers.formatDecimal(investment.quantity, 1, 6)}">0.000000</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span th:text="${#numbers.formatDecimal(investment.purchasePrice, 1, 2)} + '€'">0,00€</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span th:text="${#numbers.formatDecimal(investment.currentPrice, 1, 2)} + '€'">0,00€</span>
+                                            <br>
+                                            <small class="text-muted" th:text="${#temporals.format(investment.purchaseDate, 'dd/MM/yyyy')}">01/01/2024</small>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-bold" th:text="${#numbers.formatDecimal(investment.totalValue, 1, 2)} + '€'">0,00€</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span th:classappend="${investment.gainLoss >= 0} ? 'text-success' : 'text-danger'"
+                                                  class="fw-medium">
+                                                <span th:text="${#numbers.formatDecimal(investment.gainLoss, 1, 2)} + '€'">0,00€</span>
+                                                <br>
+                                                <small th:text="'(' + ${#numbers.formatDecimal(investment.gainLossPercentage, 1, 2)} + '%)'">(%)</small>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <!-- Quick Price Update -->
+                                                <button type="button" class="btn btn-outline-warning btn-sm" 
+                                                        onclick="showPriceUpdateModal(this)"
+                                                        th:data-id="${investment.id}"
+                                                        th:data-name="${investment.name}"
+                                                        th:data-current-price="${investment.currentPrice}">
+                                                    <i class="fas fa-dollar-sign"></i>
+                                                </button>
+                                                
+                                                <!-- Edit -->
+                                                <a th:href="@{/investments/edit/{id}(id=${investment.id})}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                
+                                                <!-- Delete -->
+                                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                        onclick="confirmDelete(this)"
+                                                        th:data-id="${investment.id}"
+                                                        th:data-name="${investment.name}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div th:if="${#lists.isEmpty(investments)}" class="text-center py-5">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum investimento encontrado</h5>
+                            <p class="text-muted mb-4">Comece por adicionar o seu primeiro investimento</p>
+                            <a th:href="@{/investments/add}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Novo Investimento
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Update Modal -->
+        <div class="modal fade" id="priceUpdateModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-dollar-sign text-warning me-2"></i>
+                            Atualizar Preço
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="priceUpdateForm" method="post">
+                        <div class="modal-body">
+                            <p>Atualize o preço atual do investimento <strong id="investmentName">-</strong></p>
+                            <div class="mb-3">
+                                <label for="currentPrice" class="form-label">Preço Atual (€)</label>
+                                <input type="number" step="0.01" min="0.01" class="form-control" 
+                                       id="currentPrice" name="currentPrice" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-2"></i>Atualizar Preço
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-trash text-danger me-2"></i>
+                            Remover Investimento
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza que deseja remover o investimento <strong id="deleteInvestmentName">-</strong>?</p>
+                        <p class="text-muted small mb-0">Esta ação não pode ser desfeita.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="deleteForm" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Remover
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="scripts">
+        function showPriceUpdateModal(button) {
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+            const currentPrice = button.getAttribute('data-current-price');
+            
+            document.getElementById('investmentName').textContent = name;
+            document.getElementById('currentPrice').value = currentPrice;
+            document.getElementById('priceUpdateForm').action = `/investments/update-price/${id}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('priceUpdateModal'));
+            modal.show();
+        }
+
+        function confirmDelete(button) {
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+            
+            document.getElementById('deleteInvestmentName').textContent = name;
+            document.getElementById('deleteForm').action = `/investments/delete/${id}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+
+    <style layout:fragment="styles">
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .progress {
+            border-radius: 4px;
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
+    </style>
+</body>
+</html>

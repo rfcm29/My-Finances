@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Novo Investimento</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Novo Investimento</h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-plus me-1"></i>Adicionar um novo investimento ao seu portfolio
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/investments}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Detalhes do Investimento
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/investments/add}" method="post" th:object="${investmentForm}">
+                            
+                            <!-- Investment Type -->
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Investimento</label>
+                                <div class="row g-2">
+                                    <div class="col-6 col-md-4" th:each="investType : ${investmentTypes}">
+                                        <input type="radio" class="btn-check" name="type" 
+                                               th:id="'type_' + ${investType}" 
+                                               th:value="${investType}" 
+                                               th:field="*{type}">
+                                        <label class="btn btn-outline-primary w-100 investment-type-btn" 
+                                               th:for="'type_' + ${investType}">
+                                            <i th:if="${investType.name() == 'STOCK'}" class="fas fa-chart-line d-block mb-1"></i>
+                                            <i th:if="${investType.name() == 'ETF'}" class="fas fa-layer-group d-block mb-1"></i>
+                                            <i th:if="${investType.name() == 'MUTUAL_FUND'}" class="fas fa-coins d-block mb-1"></i>
+                                            <i th:if="${investType.name() == 'BOND'}" class="fas fa-certificate d-block mb-1"></i>
+                                            <i th:if="${investType.name() == 'SAVINGS_ACCOUNT'}" class="fas fa-piggy-bank d-block mb-1"></i>
+                                            <i th:if="${investType.name() == 'TERM_DEPOSIT'}" class="fas fa-university d-block mb-1"></i>
+                                            <i th:if="${investType.name() == 'CRYPTOCURRENCY'}" class="fab fa-bitcoin d-block mb-1"></i>
+                                            <i th:if="${investType.name() == 'REAL_ESTATE'}" class="fas fa-home d-block mb-1"></i>
+                                            <i th:if="${investType.name() == 'OTHER'}" class="fas fa-question d-block mb-1"></i>
+                                            <small th:text="${investType.displayName}">Tipo</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                            </div>
+
+                            <!-- Investment Name -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-tag me-2"></i>Nome do Investimento
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       th:field="*{name}"
+                                       th:class="${#fields.hasErrors('name')} ? 'form-control form-control-lg is-invalid' : 'form-control form-control-lg'"
+                                       placeholder="Ex: Apple Inc., Bitcoin, Conta Poupança CGD" required autofocus>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </div>
+
+                            <!-- Symbol (Optional) -->
+                            <div class="mb-3">
+                                <label for="symbol" class="form-label">
+                                    <i class="fas fa-code me-2"></i>Símbolo/Ticker (opcional)
+                                </label>
+                                <input type="text" class="form-control" 
+                                       th:field="*{symbol}"
+                                       th:class="${#fields.hasErrors('symbol')} ? 'form-control is-invalid' : 'form-control'"
+                                       placeholder="Ex: AAPL, BTC, VWCE"
+                                       style="text-transform: uppercase;">
+                                <div class="form-text">
+                                    <small class="text-muted">Útil para ações, ETFs, criptomoedas</small>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('symbol')}" th:errors="*{symbol}"></div>
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">
+                                    <i class="fas fa-calculator me-2"></i>Quantidade
+                                </label>
+                                <input type="number" step="0.000001" min="0.000001" class="form-control form-control-lg" 
+                                       th:field="*{quantity}"
+                                       th:class="${#fields.hasErrors('quantity')} ? 'form-control form-control-lg is-invalid' : 'form-control form-control-lg'"
+                                       placeholder="1.000000" required>
+                                <div class="form-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Para ações: número de ações. Para crypto: quantidade em moeda base.
+                                    </small>
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
+                            </div>
+
+                            <!-- Purchase Price -->
+                            <div class="mb-3">
+                                <label for="purchasePrice" class="form-label">
+                                    <i class="fas fa-euro-sign me-2"></i>Preço de Compra
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <input type="number" step="0.01" min="0.01" class="form-control" 
+                                           th:field="*{purchasePrice}"
+                                           th:class="${#fields.hasErrors('purchasePrice')} ? 'form-control is-invalid' : 'form-control'"
+                                           placeholder="0,00" required>
+                                    <span class="input-group-text">€</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('purchasePrice')}" th:errors="*{purchasePrice}"></div>
+                                </div>
+                                <div class="form-text">
+                                    <small class="text-muted">Preço por unidade no momento da compra</small>
+                                </div>
+                            </div>
+
+                            <!-- Purchase Date -->
+                            <div class="mb-4">
+                                <label for="purchaseDate" class="form-label">
+                                    <i class="fas fa-calendar me-2"></i>Data de Compra
+                                </label>
+                                <input type="date" class="form-control form-control-lg" 
+                                       th:field="*{purchaseDate}"
+                                       th:class="${#fields.hasErrors('purchaseDate')} ? 'form-control form-control-lg is-invalid' : 'form-control form-control-lg'"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('purchaseDate')}" th:errors="*{purchaseDate}"></div>
+                            </div>
+
+                            <!-- Investment Summary -->
+                            <div class="alert alert-info" id="investmentSummary" style="display: none;">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-calculator me-2"></i>Resumo do Investimento
+                                </h6>
+                                <p class="mb-1">
+                                    <strong>Valor Total Investido:</strong> <span id="totalInvested">0,00€</span>
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Preço por Unidade:</strong> <span id="pricePerUnit">0,00€</span>
+                                </p>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a th:href="@{/investments}" class="btn btn-outline-secondary me-md-2">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Adicionar Investimento
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Investment Types Info Card -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>Tipos de Investimento
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <i class="fas fa-chart-line text-primary me-2 mt-1"></i>
+                                    <div>
+                                        <strong>Ações</strong>
+                                        <br><small class="text-muted">Participações em empresas cotadas</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <i class="fas fa-layer-group text-success me-2 mt-1"></i>
+                                    <div>
+                                        <strong>ETF</strong>
+                                        <br><small class="text-muted">Fundos negociados em bolsa</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <i class="fab fa-bitcoin text-warning me-2 mt-1"></i>
+                                    <div>
+                                        <strong>Criptomoedas</strong>
+                                        <br><small class="text-muted">Moedas digitais descentralizadas</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <i class="fas fa-piggy-bank text-info me-2 mt-1"></i>
+                                    <div>
+                                        <strong>Conta Poupança</strong>
+                                        <br><small class="text-muted">Depósitos com juros garantidos</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips Card -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-tips text-info me-2"></i>Dicas
+                        </h6>
+                        <ul class="small text-muted mb-0">
+                            <li>Para ações e ETFs, use o símbolo oficial (ticker)</li>
+                            <li>O preço atual será inicialmente igual ao preço de compra</li>
+                            <li>Pode atualizar o preço atual posteriormente no portfolio</li>
+                            <li>Para investimentos fracionados, use decimais na quantidade</li>
+                            <li>Mantenha comprovantes dos seus investimentos</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="scripts">
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.querySelector('input[name="quantity"]');
+            const priceInput = document.querySelector('input[name="purchasePrice"]');
+            const summaryDiv = document.getElementById('investmentSummary');
+            const totalInvestedSpan = document.getElementById('totalInvested');
+            const pricePerUnitSpan = document.getElementById('pricePerUnit');
+            
+            function updateSummary() {
+                const quantity = parseFloat(quantityInput.value) || 0;
+                const price = parseFloat(priceInput.value) || 0;
+                
+                if (quantity > 0 && price > 0) {
+                    const totalInvested = quantity * price;
+                    
+                    totalInvestedSpan.textContent = totalInvested.toLocaleString('pt-PT', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) + '€';
+                    
+                    pricePerUnitSpan.textContent = price.toLocaleString('pt-PT', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) + '€';
+                    
+                    summaryDiv.style.display = 'block';
+                } else {
+                    summaryDiv.style.display = 'none';
+                }
+            }
+            
+            quantityInput.addEventListener('input', updateSummary);
+            priceInput.addEventListener('input', updateSummary);
+            
+            // Auto-set today's date
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput && !dateInput.value) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+            
+            // Auto-focus name field after selecting type
+            const typeRadios = document.querySelectorAll('input[name="type"]');
+            const nameInput = document.querySelector('input[name="name"]');
+            
+            typeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    setTimeout(() => {
+                        if (nameInput && !nameInput.value) {
+                            nameInput.focus();
+                        }
+                    }, 100);
+                });
+            });
+            
+            // Format inputs
+            if (quantityInput) {
+                quantityInput.addEventListener('input', function() {
+                    let value = this.value.replace(/[^0-9.,]/g, '');
+                    this.value = value;
+                });
+            }
+            
+            if (priceInput) {
+                priceInput.addEventListener('input', function() {
+                    let value = this.value.replace(/[^0-9.,]/g, '');
+                    this.value = value;
+                });
+            }
+            
+            // Auto-uppercase symbol
+            const symbolInput = document.querySelector('input[name="symbol"]');
+            if (symbolInput) {
+                symbolInput.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+            }
+        });
+    </script>
+
+    <style layout:fragment="styles">
+        .investment-type-btn {
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0.5rem;
+        }
+        
+        .investment-type-btn i {
+            font-size: 1.5rem;
+        }
+        
+        .investment-type-btn:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        #investmentSummary {
+            border-left: 4px solid #0d6efd;
+        }
+    </style>
+</body>
+</html>

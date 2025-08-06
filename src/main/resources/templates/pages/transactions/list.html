@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Transações</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 fw-bold text-dark mb-1">Transações</h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-list me-1"></i>
+                    <span th:text="${totalElements}">0</span> transações encontradas
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/transactions/add}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Nova Transação
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>Filtros
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="get" th:action="@{/transactions}">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Pesquisar</label>
+                            <input type="text" class="form-control" name="search" 
+                                   th:value="${search}" placeholder="Descrição da transação">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" name="type">
+                                <option value="">Todos</option>
+                                <option value="INCOME" th:selected="${selectedType == 'INCOME'}">Receita</option>
+                                <option value="EXPENSE" th:selected="${selectedType == 'EXPENSE'}">Despesa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Conta</label>
+                            <select class="form-select" name="accountId">
+                                <option value="">Todas as contas</option>
+                                <option th:each="account : ${accounts}" 
+                                        th:value="${account.id}" 
+                                        th:text="${account.name}"
+                                        th:selected="${selectedAccountId == account.id}">Conta</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Categoria</label>
+                            <select class="form-select" name="categoryId">
+                                <option value="">Todas as categorias</option>
+                                <option th:each="category : ${categories}" 
+                                        th:value="${category.id}" 
+                                        th:text="${category.name}"
+                                        th:selected="${selectedCategoryId == category.id}">Categoria</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">Lista de Transações</h6>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-sort me-1"></i>Ordenar
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='date', sortDir='desc')}">Data (mais recente)</a></li>
+                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='date', sortDir='asc')}">Data (mais antiga)</a></li>
+                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='amount', sortDir='desc')}">Valor (maior)</a></li>
+                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='amount', sortDir='asc')}">Valor (menor)</a></li>
+                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='description', sortDir='asc')}">Descrição (A-Z)</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div th:if="${transactions.hasContent()}" class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Descrição</th>
+                                <th>Categoria</th>
+                                <th>Conta</th>
+                                <th class="text-end">Valor</th>
+                                <th width="120">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="transaction : ${transactions.content}">
+                                <td>
+                                    <span th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy')}">01/01/2024</span>
+                                </td>
+                                <td>
+                                    <div class="fw-medium" th:text="${transaction.description}">Descrição da transação</div>
+                                </td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${transaction.category.type.name() == 'INCOME'} ? 'bg-success' : 'bg-danger'"
+                                          th:text="${transaction.category.name}">Categoria</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted" th:text="${transaction.account.name}">Conta</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="fw-bold" 
+                                          th:classappend="${transaction.type.name() == 'INCOME'} ? 'text-success' : 'text-danger'"
+                                          th:text="${transaction.type.name() == 'INCOME' ? '+' : '-'} + ${#numbers.formatDecimal(transaction.amount, 1, 2)} + '€'">
+                                        +1.234,56€
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a th:href="@{/transactions/edit/{id}(id=${transaction.id})}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                onclick="confirmDelete(this)"
+                                                th:data-id="${transaction.id}"
+                                                th:data-description="${transaction.description}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Empty State -->
+                <div th:unless="${transactions.hasContent()}" class="text-center py-5">
+                    <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhuma transação encontrada</h5>
+                    <p class="text-muted mb-4">Comece por adicionar a sua primeira transação</p>
+                    <a th:href="@{/transactions/add}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Nova Transação
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div th:if="${totalPages > 1}" class="card-footer">
+                <nav>
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/transactions(page=0)}">Primeira</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/transactions(page=${currentPage - 1})}">Anterior</a>
+                        </li>
+                        
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                            class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/transactions(page=${i})}" th:text="${i + 1}">1</a>
+                        </li>
+                        
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/transactions(page=${currentPage + 1})}">Próxima</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/transactions(page=${totalPages - 1})}">Última</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            Confirmar Eliminação
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza que deseja eliminar a transação <strong id="deleteDescription"></strong>?</p>
+                        <p class="text-muted small mb-0">Esta ação não pode ser desfeita.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="deleteForm" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="scripts">
+        function confirmDelete(button) {
+            const id = button.getAttribute('data-id');
+            const description = button.getAttribute('data-description');
+            
+            document.getElementById('deleteDescription').textContent = description;
+            document.getElementById('deleteForm').action = '/transactions/delete/' + id;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>
