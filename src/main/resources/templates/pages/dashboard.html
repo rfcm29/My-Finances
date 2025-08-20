@@ -10,10 +10,6 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="h3 fw-bold text-dark mb-1">Dashboard</h1>
-                <p class="text-muted mb-0">
-                    <i class="fas fa-calendar me-1"></i>
-                    <span th:text="${currentMonthName}">Janeiro 2025</span>
-                </p>
             </div>
             <div>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickActionModal">
@@ -22,86 +18,98 @@
             </div>
         </div>
 
-        <!-- Financial Overview Cards -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm h-100 bg-primary text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-subtitle mb-2 opacity-75">Saldo Total</h6>
-                                <h4 class="card-title fw-bold mb-0" th:text="${#numbers.formatDecimal(totalBalance, 0, 2)} + '€'">€0.00</h4>
-                            </div>
-                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                                <i class="fas fa-wallet fa-lg"></i>
-                            </div>
+        <!-- Financial Overview Cards - Modern Design -->
+        <div class="row g-4 mb-4">
+            <!-- Total Balance Card -->
+            <div class="col-md-6 col-lg-3">
+                <div class="financial-overview-card balance-card">
+                    <div class="financial-card-header">
+                        <div class="card-icon-wrapper balance-icon">
+                            <i class="fas fa-wallet"></i>
                         </div>
-                        <small class="opacity-75">
-                            <span th:text="${accountCount}">0</span> conta(s) ativa(s)
-                        </small>
+                        <div class="card-trend">
+                            <i class="fas fa-chart-line text-success"></i>
+                        </div>
                     </div>
+                    <div class="financial-card-body">
+                        <div class="metric-label">Saldo Total</div>
+                        <div class="metric-value currency-display" th:text="${#numbers.formatDecimal(totalBalance, 0, 2)} + '€'">€0.00</div>
+                        <div class="metric-subtitle">
+                            <span class="account-count" th:text="${accountCount}">0</span> conta(s) ativa(s)
+                        </div>
+                    </div>
+                    <div class="card-accent-line balance-accent"></div>
                 </div>
             </div>
             
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm h-100 bg-success text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-subtitle mb-2 opacity-75">Receitas do Mês</h6>
-                                <h4 class="card-title fw-bold mb-0" th:text="${#numbers.formatDecimal(monthlyIncome, 0, 2)} + '€'">€0.00</h4>
-                            </div>
-                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                                <i class="fas fa-arrow-up fa-lg"></i>
-                            </div>
+            <!-- Monthly Income Card -->
+            <div class="col-md-6 col-lg-3">
+                <div class="financial-overview-card income-card">
+                    <div class="financial-card-header">
+                        <div class="card-icon-wrapper income-icon">
+                            <i class="fas fa-trending-up"></i>
                         </div>
-                        <small class="opacity-75">
-                            <span th:if="${incomeChange >= 0}" th:text="'+' + ${#numbers.formatDecimal(incomeChange, 0, 1)} + '%'">+0%</span>
-                            <span th:if="${incomeChange < 0}" th:text="${#numbers.formatDecimal(incomeChange, 0, 1)} + '%'">-0%</span>
-                            vs mês anterior
-                        </small>
+                        <div class="card-trend">
+                            <span class="trend-badge" 
+                                  th:classappend="${incomeChange >= 0 ? 'trend-up' : 'trend-down'}"
+                                  th:text="${incomeChange >= 0 ? '+' + #numbers.formatDecimal(incomeChange, 0, 1) + '%' : #numbers.formatDecimal(incomeChange, 0, 1) + '%'}">
+                                +0%
+                            </span>
+                        </div>
                     </div>
+                    <div class="financial-card-body">
+                        <div class="metric-label">Receitas do Mês</div>
+                        <div class="metric-value currency-display amount-positive" th:text="${#numbers.formatDecimal(monthlyIncome, 0, 2)} + '€'">€0.00</div>
+                        <div class="metric-subtitle">vs mês anterior</div>
+                    </div>
+                    <div class="card-accent-line income-accent"></div>
                 </div>
             </div>
             
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm h-100 bg-danger text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-subtitle mb-2 opacity-75">Despesas do Mês</h6>
-                                <h4 class="card-title fw-bold mb-0" th:text="${#numbers.formatDecimal(monthlyExpenses, 0, 2)} + '€'">€0.00</h4>
-                            </div>
-                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                                <i class="fas fa-arrow-down fa-lg"></i>
-                            </div>
+            <!-- Monthly Expenses Card -->
+            <div class="col-md-6 col-lg-3">
+                <div class="financial-overview-card expense-card">
+                    <div class="financial-card-header">
+                        <div class="card-icon-wrapper expense-icon">
+                            <i class="fas fa-trending-down"></i>
                         </div>
-                        <small class="opacity-75">
-                            <span th:if="${expenseChange >= 0}" th:text="'+' + ${#numbers.formatDecimal(expenseChange, 0, 1)} + '%'">+0%</span>
-                            <span th:if="${expenseChange < 0}" th:text="${#numbers.formatDecimal(expenseChange, 0, 1)} + '%'">-0%</span>
-                            vs mês anterior
-                        </small>
+                        <div class="card-trend">
+                            <span class="trend-badge"
+                                  th:classappend="${expenseChange <= 0 ? 'trend-up' : 'trend-down'}"
+                                  th:text="${expenseChange >= 0 ? '+' + #numbers.formatDecimal(expenseChange, 0, 1) + '%' : #numbers.formatDecimal(expenseChange, 0, 1) + '%'}">
+                                +0%
+                            </span>
+                        </div>
                     </div>
+                    <div class="financial-card-body">
+                        <div class="metric-label">Despesas do Mês</div>
+                        <div class="metric-value currency-display amount-negative" th:text="${#numbers.formatDecimal(monthlyExpenses, 0, 2)} + '€'">€0.00</div>
+                        <div class="metric-subtitle">vs mês anterior</div>
+                    </div>
+                    <div class="card-accent-line expense-accent"></div>
                 </div>
             </div>
             
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm h-100" th:classappend="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'bg-info' : 'bg-warning'} + ' text-white'">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-subtitle mb-2 opacity-75">Saldo Mensal</h6>
-                                <h4 class="card-title fw-bold mb-0" th:text="${#numbers.formatDecimal(monthlyNet, 0, 2)} + '€'">€0.00</h4>
-                            </div>
-                            <div class="bg-white bg-opacity-20 rounded-circle p-3">
-                                <i class="fas fa-balance-scale fa-lg"></i>
-                            </div>
+            <!-- Monthly Net Card -->
+            <div class="col-md-6 col-lg-3">
+                <div class="financial-overview-card net-card">
+                    <div class="financial-card-header">
+                        <div class="card-icon-wrapper net-icon" th:classappend="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'net-positive' : 'net-negative'}">
+                            <i class="fas fa-balance-scale" th:if="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0}"></i>
+                            <i class="fas fa-exclamation-triangle" th:unless="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0}"></i>
                         </div>
-                        <small class="opacity-75">
-                            <span th:if="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0}">Poupança este mês</span>
-                            <span th:if="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) < 0}">Déficit este mês</span>
-                        </small>
+                        <div class="card-status" th:classappend="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'status-positive' : 'status-negative'}">
+                            <span th:text="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'Positivo' : 'Negativo'}">Status</span>
+                        </div>
                     </div>
+                    <div class="financial-card-body">
+                        <div class="metric-label">Saldo Mensal</div>
+                        <div class="metric-value currency-display" 
+                             th:classappend="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'amount-positive' : 'amount-negative'}"
+                             th:text="${#numbers.formatDecimal(monthlyNet, 0, 2)} + '€'">€0.00</div>
+                        <div class="metric-subtitle">Receitas - Despesas</div>
+                    </div>
+                    <div class="card-accent-line net-accent" th:classappend="${monthlyNet.compareTo(T(java.math.BigDecimal).ZERO) >= 0 ? 'accent-positive' : 'accent-negative'}"></div>
                 </div>
             </div>
         </div>
@@ -118,7 +126,7 @@
                                     <i class="fas fa-history me-2 text-primary"></i>
                                     Transações Recentes
                                 </h5>
-                                <a th:href="@{/transactions}" class="btn btn-outline-primary btn-sm">
+                                <a th:href="@{/transactions}" class="btn btn-success btn-sm">
                                     Ver Todas
                                 </a>
                             </div>
@@ -215,7 +223,7 @@
                                     <i class="fas fa-wallet fa-2x text-primary mb-3"></i>
                                     <h6>1. Criar Conta</h6>
                                     <p class="small text-muted">Adicione as suas contas bancárias, carteiras, etc.</p>
-                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#quickActionModal">
+                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#quickActionModal">
                                         Criar Conta
                                     </button>
                                 </div>
@@ -260,7 +268,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="d-grid gap-2">
-                            <a th:href="@{/accounts/add}" class="btn btn-outline-primary btn-lg">
+                            <a th:href="@{/accounts/add}" class="btn btn-success btn-lg">
                                 <i class="fas fa-wallet me-2"></i>Adicionar Conta
                             </a>
                             <a th:href="@{/transactions/add}" class="btn btn-outline-success btn-lg" th:if="${accountCount > 0}">

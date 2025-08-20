@@ -1,64 +1,80 @@
 package com.example.myfinances.repository;
 
 import com.example.myfinances.model.InvestmentProduct;
-import com.example.myfinances.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface InvestmentProductRepository extends JpaRepository<InvestmentProduct, Long> {
     
-    List<InvestmentProduct> findByUserAndIsActiveTrue(User user);
+    // Find by symbol and currency
+    Optional<InvestmentProduct> findBySymbolAndCurrency(String symbol, String currency);
     
-    List<InvestmentProduct> findByUserOrderByNameAsc(User user);
+    // Check if product exists
+    boolean existsBySymbolAndCurrency(String symbol, String currency);
     
-    @Query("SELECT p FROM InvestmentProduct p WHERE p.user = :user AND p.isActive = true ORDER BY p.name ASC")
-    List<InvestmentProduct> findActiveProductsByUser(@Param("user") User user);
+    // Find by symbol (all currencies)
+    List<InvestmentProduct> findBySymbolIgnoreCaseOrderByCurrency(String symbol);
     
-    @Query("SELECT p FROM InvestmentProduct p WHERE p.user = :user AND p.type = :type AND p.isActive = true ORDER BY p.name ASC")
-    List<InvestmentProduct> findActiveProductsByUserAndType(@Param("user") User user, 
-                                                           @Param("type") InvestmentProduct.InvestmentType type);
+    // Search products by various criteria
+    @Query("SELECT p FROM InvestmentProduct p WHERE " +
+           "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.symbol) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "ORDER BY p.symbol ASC")
+    List<InvestmentProduct> searchProducts(@Param("search") String search);
     
-    @Query("SELECT p FROM InvestmentProduct p WHERE p.user = :user AND p.currency = :currency AND p.isActive = true ORDER BY p.name ASC")
-    List<InvestmentProduct> findActiveProductsByUserAndCurrency(@Param("user") User user, 
-                                                               @Param("currency") String currency);
+    // Find by type
+    List<InvestmentProduct> findByTypeOrderBySymbolAsc(InvestmentProduct.InvestmentType type);
     
-    @Query("SELECT p FROM InvestmentProduct p WHERE p.user = :user AND p.symbol = :symbol AND p.currency = :currency")
-    Optional<InvestmentProduct> findByUserAndSymbolAndCurrency(@Param("user") User user, 
-                                                              @Param("symbol") String symbol, 
-                                                              @Param("currency") String currency);
+    // Find by exchange
+    List<InvestmentProduct> findByExchangeIgnoreCaseOrderBySymbolAsc(String exchange);
     
-    @Query("SELECT p FROM InvestmentProduct p WHERE p.user = :user AND p.symbol = :symbol")
-    List<InvestmentProduct> findByUserAndSymbol(@Param("user") User user, @Param("symbol") String symbol);
+    // Find by currency
+    List<InvestmentProduct> findByCurrencyOrderBySymbolAsc(String currency);
     
-    @Query("SELECT p FROM InvestmentProduct p WHERE p.user = :user AND p.isActive = true AND " +
-           "(LOWER(p.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(p.symbol) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(p.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
-    List<InvestmentProduct> searchActiveProducts(@Param("user") User user, @Param("searchTerm") String searchTerm);
+    // Find by sector
+    List<InvestmentProduct> findBySectorIgnoreCaseOrderBySymbolAsc(String sector);
     
-    @Query("SELECT COUNT(p) FROM InvestmentProduct p WHERE p.user = :user AND p.isActive = true")
-    long countActiveProductsByUser(@Param("user") User user);
+    // Find by region
+    List<InvestmentProduct> findByRegionIgnoreCaseOrderBySymbolAsc(String region);
     
-    @Query("SELECT DISTINCT p.type FROM InvestmentProduct p WHERE p.user = :user AND p.isActive = true")
-    List<InvestmentProduct.InvestmentType> findDistinctTypesByUser(@Param("user") User user);
+    // Find products that need price updates (older than specified time)
+    @Query("SELECT p FROM InvestmentProduct p WHERE p.lastUpdated < :threshold ORDER BY p.lastUpdated ASC")
+    List<InvestmentProduct> findProductsNeedingUpdate(@Param("threshold") LocalDateTime threshold);
     
-    @Query("SELECT DISTINCT p.currency FROM InvestmentProduct p WHERE p.user = :user AND p.isActive = true ORDER BY p.currency")
-    List<String> findDistinctCurrenciesByUser(@Param("user") User user);
+    // Get distinct values for filtering
+    @Query("SELECT DISTINCT p.type FROM InvestmentProduct p ORDER BY p.type")
+    List<InvestmentProduct.InvestmentType> findDistinctTypes();
     
-    @Query("SELECT DISTINCT p.exchange FROM InvestmentProduct p WHERE p.user = :user AND p.isActive = true AND p.exchange IS NOT NULL ORDER BY p.exchange")
-    List<String> findDistinctExchangesByUser(@Param("user") User user);
+    @Query("SELECT DISTINCT p.currency FROM InvestmentProduct p WHERE p.currency IS NOT NULL ORDER BY p.currency")
+    List<String> findDistinctCurrencies();
     
-    @Query("SELECT DISTINCT p.sector FROM InvestmentProduct p WHERE p.user = :user AND p.isActive = true AND p.sector IS NOT NULL ORDER BY p.sector")
-    List<String> findDistinctSectorsByUser(@Param("user") User user);
+    @Query("SELECT DISTINCT p.exchange FROM InvestmentProduct p WHERE p.exchange IS NOT NULL ORDER BY p.exchange")
+    List<String> findDistinctExchanges();
     
-    @Query("SELECT DISTINCT p.region FROM InvestmentProduct p WHERE p.user = :user AND p.isActive = true AND p.region IS NOT NULL ORDER BY p.region")
-    List<String> findDistinctRegionsByUser(@Param("user") User user);
+    @Query("SELECT DISTINCT p.sector FROM InvestmentProduct p WHERE p.sector IS NOT NULL ORDER BY p.sector")
+    List<String> findDistinctSectors();
     
-    boolean existsByUserAndSymbolAndCurrency(User user, String symbol, String currency);
+    @Query("SELECT DISTINCT p.region FROM InvestmentProduct p WHERE p.region IS NOT NULL ORDER BY p.region")
+    List<String> findDistinctRegions();
+    
+    // Count products
+    long countByType(InvestmentProduct.InvestmentType type);
+    
+    long countByCurrency(String currency);
+    
+    // Find most popular products (by number of investments)
+    @Query("SELECT p FROM InvestmentProduct p JOIN p.investments i GROUP BY p ORDER BY COUNT(i) DESC")
+    List<InvestmentProduct> findMostPopularProducts();
+    
+    // Find recently added products
+    @Query("SELECT p FROM InvestmentProduct p ORDER BY p.createdAt DESC")
+    List<InvestmentProduct> findRecentlyAdded();
 }

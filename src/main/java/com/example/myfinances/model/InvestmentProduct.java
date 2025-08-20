@@ -1,93 +1,93 @@
 package com.example.myfinances.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "investment_products", 
-       uniqueConstraints = {@UniqueConstraint(columnNames = {"symbol", "currency"})})
+@Table(name = "investment_products")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"user"})
-@ToString(exclude = {"user"})
+@EqualsAndHashCode(exclude = {"investments"})
+@ToString(exclude = {"investments"})
 public class InvestmentProduct {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @NotNull(message = "Utilizador é obrigatório")
-    private User user;
-    
-    @Column(length = 20, nullable = false)
-    @NotBlank(message = "Símbolo é obrigatório")
-    @Size(max = 20, message = "Símbolo não pode ter mais de 20 caracteres")
+    @Column(nullable = false, length = 20)
     private String symbol;
     
-    @Column(nullable = false)
-    @NotBlank(message = "Nome do produto é obrigatório")
-    @Size(max = 200, message = "Nome não pode ter mais de 200 caracteres")
+    @Column(nullable = false, length = 200)
     private String name;
     
-    @Column(length = 500)
-    @Size(max = 500, message = "Descrição não pode ter mais de 500 caracteres")
-    private String description;
-    
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @NotNull(message = "Tipo de investimento é obrigatório")
+    @Column(nullable = false, length = 30)
     private InvestmentType type;
     
-    @Column(length = 3, nullable = false)
-    @NotBlank(message = "Moeda é obrigatória")
-    private String currency;
+    @Column(columnDefinition = "TEXT")
+    private String description;
     
-    @Column(name = "current_price", precision = 15, scale = 6)
-    private BigDecimal currentPrice;
+    @Column(nullable = false, length = 10)
+    private String currency = "USD";
     
     @Column(length = 100)
-    @Size(max = 100, message = "Exchange não pode ter mais de 100 caracteres")
     private String exchange;
     
-    @Column(length = 50)
-    @Size(max = 50, message = "Setor não pode ter mais de 50 caracteres")
+    @Column(length = 100)
     private String sector;
     
-    @Column(length = 50)
-    @Size(max = 50, message = "Região não pode ter mais de 50 caracteres")
+    @Column(length = 100)
     private String region;
     
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    @Column(name = "current_price", precision = 15, scale = 4)
+    private BigDecimal currentPrice;
+    
+    @Column(name = "market_cap")
+    private Long marketCap;
+    
+    @Column(name = "pe_ratio", precision = 10, scale = 2)
+    private BigDecimal peRatio;
+    
+    @Column(name = "dividend_yield", precision = 6, scale = 4)
+    private BigDecimal dividendYield;
+    
+    @Column(precision = 6, scale = 3)
+    private BigDecimal beta;
+    
+    @Column(name = "fifty_two_week_low", precision = 15, scale = 4)
+    private BigDecimal fiftyTwoWeekLow;
+    
+    @Column(name = "fifty_two_week_high", precision = 15, scale = 4)
+    private BigDecimal fiftyTwoWeekHigh;
+    
+    @Column(name = "avg_volume")
+    private Long avgVolume;
+    
+    @Column(name = "last_updated")
+    private LocalDateTime lastUpdated;
     
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+    
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Investment> investments = new HashSet<>();
     
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (isActive == null) {
-            isActive = true;
-        }
+        lastUpdated = LocalDateTime.now();
     }
     
     @PreUpdate
@@ -95,94 +95,73 @@ public class InvestmentProduct {
         updatedAt = LocalDateTime.now();
     }
     
-    public InvestmentProduct(User user, String symbol, String name, InvestmentType type, String currency) {
-        this.user = user;
-        this.symbol = symbol.toUpperCase();
-        this.name = name;
-        this.type = type;
-        this.currency = currency.toUpperCase();
-    }
-    
     public enum InvestmentType {
-        STOCK("Ação", "fas fa-chart-line", "#2563EB"),
-        ETF("ETF", "fas fa-layer-group", "#059669"),
-        MUTUAL_FUND("Fundo de Investimento", "fas fa-coins", "#DC2626"),
-        BOND("Obrigação", "fas fa-certificate", "#7C3AED"),
-        SAVINGS_ACCOUNT("Conta Poupança", "fas fa-piggy-bank", "#0891B2"),
-        TERM_DEPOSIT("Depósito a Prazo", "fas fa-university", "#EA580C"),
-        CRYPTOCURRENCY("Criptomoeda", "fab fa-bitcoin", "#F59E0B"),
-        COMMODITY("Commodity", "fas fa-seedling", "#84CC16"),
-        REAL_ESTATE("Imobiliário", "fas fa-home", "#EC4899"),
-        INDEX("Índice", "fas fa-chart-area", "#6366F1"),
-        OTHER("Outro", "fas fa-question", "#6B7280");
+        STOCK("Stock"),
+        ETF("ETF"),
+        MUTUAL_FUND("Mutual Fund"),
+        BOND("Bond"),
+        SAVINGS_ACCOUNT("Savings Account"),
+        TERM_DEPOSIT("Term Deposit"),
+        CRYPTOCURRENCY("Cryptocurrency"),
+        REAL_ESTATE("Real Estate"),
+        OTHER("Other");
         
         private final String displayName;
-        private final String icon;
-        private final String color;
         
-        InvestmentType(String displayName, String icon, String color) {
+        InvestmentType(String displayName) {
             this.displayName = displayName;
-            this.icon = icon;
-            this.color = color;
         }
         
-        public String getDisplayName() { return displayName; }
-        public String getIcon() { return icon; }
-        public String getColor() { return color; }
-    }
-    
-    public enum Currency {
-        EUR("Euro", "€", "EUR"),
-        USD("US Dollar", "$", "USD"),
-        GBP("British Pound", "£", "GBP"),
-        JPY("Japanese Yen", "¥", "JPY"),
-        CHF("Swiss Franc", "Fr", "CHF"),
-        CAD("Canadian Dollar", "C$", "CAD"),
-        AUD("Australian Dollar", "A$", "AUD"),
-        BTC("Bitcoin", "₿", "BTC"),
-        ETH("Ethereum", "Ξ", "ETH");
-        
-        private final String displayName;
-        private final String symbol;
-        private final String code;
-        
-        Currency(String displayName, String symbol, String code) {
-            this.displayName = displayName;
-            this.symbol = symbol;
-            this.code = code;
-        }
-        
-        public String getDisplayName() { return displayName; }
-        public String getSymbol() { return symbol; }
-        public String getCode() { return code; }
-        
-        public static Currency fromCode(String code) {
-            for (Currency currency : values()) {
-                if (currency.code.equalsIgnoreCase(code)) {
-                    return currency;
-                }
-            }
-            return EUR; // default
+        public String getDisplayName() {
+            return displayName;
         }
     }
     
-    // Helper methods
-    public String getFullName() {
-        return String.format("%s (%s)", name, symbol);
-    }
-    
-    public String getCurrencySymbol() {
-        try {
-            return Currency.fromCode(currency).getSymbol();
-        } catch (Exception e) {
-            return currency;
-        }
-    }
-    
+    // Helper methods for formatting display values
     public String getFormattedPrice() {
-        if (currentPrice == null) {
-            return "N/A";
+        if (currentPrice == null) return "N/A";
+        return String.format("%.2f %s", currentPrice, currency);
+    }
+    
+    public String getFormattedMarketCap() {
+        if (marketCap == null) return "N/A";
+        if (marketCap >= 1_000_000_000_000L) {
+            return String.format("%.1fT", marketCap / 1_000_000_000_000.0);
+        } else if (marketCap >= 1_000_000_000L) {
+            return String.format("%.1fB", marketCap / 1_000_000_000.0);
+        } else if (marketCap >= 1_000_000L) {
+            return String.format("%.1fM", marketCap / 1_000_000.0);
         }
-        return String.format("%.2f %s", currentPrice, getCurrencySymbol());
+        return marketCap.toString();
+    }
+    
+    public String getFormattedDividendYield() {
+        if (dividendYield == null) return "N/A";
+        return String.format("%.2f%%", dividendYield.multiply(BigDecimal.valueOf(100)));
+    }
+    
+    public String getFormattedPeRatio() {
+        if (peRatio == null) return "N/A";
+        return peRatio.toString();
+    }
+    
+    public String getFormattedBeta() {
+        if (beta == null) return "N/A";
+        return beta.toString();
+    }
+    
+    public String getFormattedFiftyTwoWeekRange() {
+        if (fiftyTwoWeekLow == null || fiftyTwoWeekHigh == null) return "N/A";
+        return String.format("%.2f - %.2f %s", fiftyTwoWeekLow, fiftyTwoWeekHigh, currency);
+    }
+    
+    public String getFormattedVolume() {
+        if (avgVolume == null) return "N/A";
+        if (avgVolume >= 1_000_000L) {
+            return String.format("%.1fM", avgVolume / 1_000_000.0);
+        } else if (avgVolume >= 1_000L) {
+            return String.format("%.1fK", avgVolume / 1_000.0);
+        }
+        return avgVolume.toString();
     }
 }

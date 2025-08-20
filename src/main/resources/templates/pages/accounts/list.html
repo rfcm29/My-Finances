@@ -11,77 +11,139 @@
             <div>
                 <h1 class="h3 fw-bold text-dark mb-1">Contas</h1>
                 <p class="text-muted mb-0">
-                    <i class="fas fa-wallet me-1"></i>
-                    <span th:text="${accountCount}">0</span> contas ativas
+                    <strong>Saldo Total: </strong>
+                    <span class="currency-display fw-bold text-primary" th:text="${#numbers.formatDecimal(totalBalance, 1, 2)} + '€'">1.234,56€</span>
                 </p>
             </div>
-            <div class="btn-group">
-                <a th:href="@{/accounts/add}" class="btn btn-primary">
+            <div>
+                <a th:href="@{/accounts/add}" class="btn btn-success">
                     <i class="fas fa-plus me-2"></i>Nova Conta
                 </a>
-                <a th:href="@{/accounts/transfer}" class="btn btn-outline-primary">
+                <a th:href="@{/accounts/transfer}" class="btn btn-info">
                     <i class="fas fa-exchange-alt me-2"></i>Transferir
                 </a>
             </div>
         </div>
 
+        <!-- Filter Section -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group" role="group">
+                        <a th:href="@{/accounts}" 
+                           class="btn btn-sm"
+                           th:classappend="${!showInactive ? 'btn-primary' : 'btn-secondary'}">
+                            <i class="fas fa-eye me-1"></i>Apenas Ativas
+                        </a>
+                        <a th:href="@{/accounts(showInactive=true)}" 
+                           class="btn btn-sm"
+                           th:classappend="${showInactive ? 'btn-primary' : 'btn-secondary'}"
+                           th:disabled="${inactiveCount == 0}">
+                            <i class="fas fa-eye-slash me-1"></i>Todas as Contas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Balance Summary Cards -->
         <div class="row g-3 mb-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="card bg-primary text-white">
-                    <div class="card-body">
+            <!-- Checking Accounts Card -->
+            <div class="col">
+                <div class="card card-info">
+                    <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title mb-0">Saldo Total</h6>
-                                <h4 class="mb-0" th:text="${#numbers.formatDecimal(totalBalance, 1, 2)} + '€'">1.234,56€</h4>
+                                <div class="small text-uppercase fw-semibold text-muted mb-1">Contas Bancárias</div>
+                                <h5 class="mb-0 fw-bold currency-display" th:text="${#numbers.formatDecimal(checkingBalance, 1, 2)} + '€'">856,78€</h5>
                             </div>
-                            <div class="opacity-75">
-                                <i class="fas fa-coins fa-2x"></i>
+                            <div style="color: #0ea5e9;">
+                                <i class="fas fa-university fa-2x opacity-75"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="card bg-success text-white">
-                    <div class="card-body">
+            
+            <!-- State Savings Card -->
+            <div class="col">
+                <div class="card card-success">
+                    <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title mb-0">Contas à Ordem</h6>
-                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(checkingBalance, 1, 2)} + '€'">856,78€</h5>
+                                <div class="small text-uppercase fw-semibold text-muted mb-1">Poupanças Estado</div>
+                                <h5 class="mb-0 fw-bold currency-display" th:text="${#numbers.formatDecimal(savingsBalance, 1, 2)} + '€'">377,78€</h5>
                             </div>
-                            <div class="opacity-75">
-                                <i class="fas fa-university fa-2x"></i>
+                            <div class="text-success">
+                                <i class="fas fa-landmark fa-2x opacity-75"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="card bg-info text-white">
-                    <div class="card-body">
+            
+            <!-- Credit Card -->
+            <div class="col">
+                <div class="card card-danger">
+                    <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title mb-0">Poupanças</h6>
-                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(savingsBalance, 1, 2)} + '€'">377,78€</h5>
+                                <div class="small text-uppercase fw-semibold text-muted mb-1">Crédito</div>
+                                <h5 class="mb-0 fw-bold currency-display" th:text="${#numbers.formatDecimal(creditBalance, 1, 2)} + '€'">0,00€</h5>
                             </div>
-                            <div class="opacity-75">
-                                <i class="fas fa-piggy-bank fa-2x"></i>
+                            <div class="text-danger">
+                                <i class="fas fa-credit-card fa-2x opacity-75"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="card bg-warning text-white">
-                    <div class="card-body">
+            
+            <!-- Digital Wallets Card -->
+            <div class="col">
+                <div class="card card-purple">
+                    <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title mb-0">Dinheiro</h6>
-                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(cashBalance, 1, 2)} + '€'">50,00€</h5>
+                                <div class="small text-uppercase fw-semibold text-muted mb-1">Carteiras Digitais</div>
+                                <h5 class="mb-0 fw-bold currency-display" th:text="${#numbers.formatDecimal(digitalBalance, 1, 2)} + '€'">0,00€</h5>
                             </div>
-                            <div class="opacity-75">
-                                <i class="fas fa-money-bill-wave fa-2x"></i>
+                            <div style="color: #8b5cf6;">
+                                <i class="fas fa-mobile-alt fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cash Card -->
+            <div class="col">
+                <div class="card card-warning">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="small text-uppercase fw-semibold text-muted mb-1">Dinheiro</div>
+                                <h5 class="mb-0 fw-bold currency-display" th:text="${#numbers.formatDecimal(cashBalance, 1, 2)} + '€'">50,00€</h5>
+                            </div>
+                            <div class="text-warning">
+                                <i class="fas fa-money-bill-wave fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Investment Card -->
+            <div class="col">
+                <div class="card card-dark">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="small text-uppercase fw-semibold text-muted mb-1">Investimentos</div>
+                                <h5 class="mb-0 fw-bold currency-display" th:text="${#numbers.formatDecimal(investmentBalance, 1, 2)} + '€'">0,00€</h5>
+                            </div>
+                            <div style="color: #6c757d;">
+                                <i class="fas fa-chart-line fa-2x opacity-75"></i>
                             </div>
                         </div>
                     </div>
@@ -113,15 +175,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="account : ${accounts}">
+                                    <tr th:each="account : ${accounts}" 
+                                        th:classappend="${!account.active ? 'table-secondary opacity-75' : ''}">
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="me-3">
-                                                    <i th:if="${account.type.name() == 'CHECKING'}" class="fas fa-university text-primary"></i>
-                                                    <i th:if="${account.type.name() == 'SAVINGS'}" class="fas fa-piggy-bank text-success"></i>
-                                                    <i th:if="${account.type.name() == 'CREDIT_CARD'}" class="fas fa-credit-card text-danger"></i>
-                                                    <i th:if="${account.type.name() == 'CASH'}" class="fas fa-money-bill-wave text-warning"></i>
-                                                    <i th:unless="${account.type.name() == 'CHECKING' or account.type.name() == 'SAVINGS' or account.type.name() == 'CREDIT_CARD' or account.type.name() == 'CASH'}" class="fas fa-wallet text-secondary"></i>
+                                                    <i th:if="${account.isBankAccount()}" class="fas fa-university text-primary"></i>
+                                                    <i th:if="${account.isStateSavings()}" class="fas fa-landmark text-success"></i>
+                                                    <i th:if="${account.isCredit()}" class="fas fa-credit-card text-danger"></i>
+                                                    <i th:if="${account.isDigitalWallet()}" class="fas fa-mobile-alt text-info"></i>
+                                                    <i th:if="${account.isCash()}" class="fas fa-money-bill-wave text-warning"></i>
+                                                    <i th:if="${account.isInvestment()}" class="fas fa-chart-line text-purple"></i>
                                                 </div>
                                                 <div>
                                                     <div class="fw-medium" th:text="${account.name}">Conta Corrente</div>
@@ -129,11 +193,13 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <span th:if="${account.type.name() == 'CHECKING'}" class="badge bg-primary">Conta à Ordem</span>
-                                            <span th:if="${account.type.name() == 'SAVINGS'}" class="badge bg-success">Poupança</span>
-                                            <span th:if="${account.type.name() == 'CREDIT_CARD'}" class="badge bg-danger">Cartão de Crédito</span>
-                                            <span th:if="${account.type.name() == 'CASH'}" class="badge bg-warning">Dinheiro</span>
-                                            <span th:unless="${account.type.name() == 'CHECKING' or account.type.name() == 'SAVINGS' or account.type.name() == 'CREDIT_CARD' or account.type.name() == 'CASH'}" class="badge bg-secondary">Outro</span>
+                                            <span th:text="${account.getDisplayName()}" class="badge" 
+                                                  th:classappend="${account.isBankAccount() ? 'bg-primary' : 
+                                                                   (account.isCredit() ? 'bg-danger' : 
+                                                                   (account.isCash() ? 'bg-warning' : 
+                                                                   (account.isDigitalWallet() ? 'bg-info' : 
+                                                                   (account.isStateSavings() ? 'bg-success' : 
+                                                                   (account.isInvestment() ? 'bg-secondary' : 'bg-secondary')))))}">Categoria</span>
                                         </td>
                                         <td>
                                             <span class="text-muted" th:text="${account.currency}">EUR</span>
@@ -152,18 +218,18 @@
                                         <td>
                                             <div class="btn-group btn-group-sm">
                                                 <a th:href="@{/accounts/edit/{id}(id=${account.id})}" 
-                                                   class="btn btn-outline-primary btn-sm">
+                                                   class="btn btn-success btn-sm">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <button th:if="${account.active}" 
-                                                        type="button" class="btn btn-outline-warning btn-sm" 
+                                                        type="button" class="btn btn-warning btn-sm"
                                                         onclick="confirmAction(this, 'deactivate')"
                                                         th:data-id="${account.id}"
                                                         th:data-name="${account.name}">
                                                     <i class="fas fa-pause"></i>
                                                 </button>
                                                 <button th:unless="${account.active}" 
-                                                        type="button" class="btn btn-outline-success btn-sm" 
+                                                        type="button" class="btn btn-success btn-sm"
                                                         onclick="confirmAction(this, 'reactivate')"
                                                         th:data-id="${account.id}"
                                                         th:data-name="${account.name}">
@@ -181,7 +247,7 @@
                             <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">Nenhuma conta encontrada</h5>
                             <p class="text-muted mb-4">Comece por criar a sua primeira conta financeira</p>
-                            <a th:href="@{/accounts/add}" class="btn btn-primary">
+                            <a th:href="@{/accounts/add}" class="btn btn-success">
                                 <i class="fas fa-plus me-2"></i>Nova Conta
                             </a>
                         </div>
@@ -190,50 +256,6 @@
             </div>
         </div>
 
-        <!-- Quick Actions Card -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">
-                            <i class="fas fa-bolt me-2"></i>Ações Rápidas
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <a th:href="@{/transactions/add}" class="btn btn-outline-primary w-100">
-                                    <i class="fas fa-plus me-2"></i>
-                                    <div>Nova Transação</div>
-                                    <small class="text-muted">Adicionar receita/despesa</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a th:href="@{/accounts/transfer}" class="btn btn-outline-success w-100">
-                                    <i class="fas fa-exchange-alt me-2"></i>
-                                    <div>Transferir</div>
-                                    <small class="text-muted">Entre contas</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a th:href="@{/accounts/add}" class="btn btn-outline-info w-100">
-                                    <i class="fas fa-wallet me-2"></i>
-                                    <div>Nova Conta</div>
-                                    <small class="text-muted">Criar conta financeira</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a th:href="@{/reports}" class="btn btn-outline-warning w-100">
-                                    <i class="fas fa-chart-bar me-2"></i>
-                                    <div>Relatórios</div>
-                                    <small class="text-muted">Ver análises</small>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Action Confirmation Modal -->
         <div class="modal fade" id="actionModal" tabindex="-1">
@@ -253,6 +275,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <form id="actionForm" method="post" style="display: inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <button type="submit" class="btn" id="actionButton">
                                 <span id="actionButtonText">Confirmar</span>
                             </button>
@@ -297,19 +320,6 @@
     <style layout:fragment="styles">
         .btn-group-sm .btn {
             padding: 0.25rem 0.5rem;
-        }
-        
-        .quick-action-btn {
-            height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-decoration: none;
-        }
-        
-        .quick-action-btn:hover {
-            transform: translateY(-2px);
-            transition: transform 0.2s ease-in-out;
         }
     </style>
 </body>

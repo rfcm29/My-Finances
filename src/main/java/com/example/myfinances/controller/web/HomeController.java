@@ -3,6 +3,7 @@ package com.example.myfinances.controller.web;
 import com.example.myfinances.model.Account;
 import com.example.myfinances.model.Transaction;
 import com.example.myfinances.model.User;
+import com.example.myfinances.security.SecurityUtils;
 import com.example.myfinances.service.AccountService;
 import com.example.myfinances.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class HomeController {
 
     @GetMapping("/dashboard")
     public String dashboard(Authentication authentication, Model model, HttpServletRequest request) {
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         log.debug("Loading dashboard for user: {}", user.getEmail());
 
         populateDashboardData(user, model);

@@ -6,17 +6,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 
@@ -34,17 +35,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers("/api/**") // Only disable CSRF for API endpoints
+                )
                 .authorizeHttpRequests(authz -> authz
                         // Public resources and pages
                         .requestMatchers("/", "/home", "/login", "/register").permitAll()
                         .requestMatchers("/error", "/favicon.ico").permitAll()
                         // Static resources
                         .requestMatchers("/webjars/**", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
-                        // H2 Console (development only - remove in production)
-                        .requestMatchers("/h2-console/**").permitAll()
-                        // Security test endpoints (development only - remove in production)
-                        .requestMatchers("/security-test/public").permitAll()
+                        // H2 Console and security test endpoints are handled by DevSecurityConfig in dev profile
                         // API endpoints (future Android app)
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                         // All other requests require authentication
@@ -58,23 +59,29 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .logoutSuccessUrl("/")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
                         .deleteCookies("JSESSIONID", "remember-me")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .permitAll()
                 )
-                .rememberMe(rememberMe -> rememberMe
-                        .key("MyFinances-RememberMe-Key")
-                        .tokenRepository(persistentTokenRepository())
-                        .tokenValiditySeconds(86400 * 30)
-                        .userDetailsService(userDetailsService)
-                )
+                // Temporarily disable remember-me until persistent_logins table is created
+                // .rememberMe(rememberMe -> rememberMe
+                //         .key("MyFinances-RememberMe-Key")
+                //         .tokenRepository(persistentTokenRepository())
+                //         .tokenValiditySeconds(86400 * 30)
+                //         .userDetailsService(userDetailsService)
+                // )
                 .sessionManagement(session -> session
+                        .sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
                         .sessionRegistry(sessionRegistry())
+                        .expiredUrl("/login?expired=true")
+                        .and()
+                        .sessionFixation().migrateSession()
+                        .invalidSessionUrl("/login?invalid=true")
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint((request, response, authException) -> {
@@ -90,8 +97,16 @@ public class SecurityConfig {
                         })
                 );
 
-        // Only disable frame options for H2 console in development
-        http.headers(headers -> headers.frameOptions().disable());
+        // Configure headers properly
+        http.headers(headers -> headers
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                .contentTypeOptions(Customizer.withDefaults())
+                .httpStrictTransportSecurity(hstsConfig -> hstsConfig
+                        .maxAgeInSeconds(31536000)
+                        .includeSubDomains(true)
+                )
+        );
+
 
         return http.build();
     }
@@ -114,12 +129,13 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    @Bean
-    public PersistentTokenRepository persistentTokenRepository() {
-        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
-        tokenRepository.setDataSource(dataSource);
-        return tokenRepository;
-    }
+    // Temporarily disabled until persistent_logins table is created
+    // @Bean
+    // public PersistentTokenRepository persistentTokenRepository() {
+    //     JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+    //     tokenRepository.setDataSource(dataSource);
+    //     return tokenRepository;
+    // }
 
     @Bean
     public SessionRegistry sessionRegistry() {

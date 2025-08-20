@@ -1,20 +1,15 @@
 package com.example.myfinances.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "investment_positions")
+@Table(name = "investments")
 @Data
 @Builder
 @NoArgsConstructor
@@ -29,51 +24,39 @@ public class Investment {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @NotNull(message = "Utilizador é obrigatório")
     private User user;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    @NotNull(message = "Produto de investimento é obrigatório")
     private InvestmentProduct product;
     
     @Column(nullable = false, precision = 15, scale = 6)
-    @NotNull(message = "Quantidade é obrigatória")
     private BigDecimal quantity;
     
-    @Column(name = "purchase_price", nullable = false, precision = 15, scale = 6)
-    @NotNull(message = "Preço de compra é obrigatório")
+    @Column(name = "purchase_price", nullable = false, precision = 15, scale = 4)
     private BigDecimal purchasePrice;
     
     @Column(name = "purchase_date", nullable = false)
-    @NotNull(message = "Data de compra é obrigatória")
     private LocalDate purchaseDate;
     
-    @Column(length = 3, nullable = false)
-    @NotNull(message = "Moeda é obrigatória")
-    private String currency;
-    
     @Column(name = "exchange_rate", precision = 15, scale = 6)
-    private BigDecimal exchangeRate; // Rate to EUR at time of purchase
+    private BigDecimal exchangeRate = BigDecimal.ONE;
     
-    @Column(length = 500)
+    @Column(columnDefinition = "TEXT")
     private String notes;
     
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (currency == null) {
-            currency = "EUR";
-        }
         if (exchangeRate == null) {
-            exchangeRate = BigDecimal.ONE; // Default to 1:1 if not specified
+            exchangeRate = BigDecimal.ONE;
         }
     }
     
@@ -82,86 +65,139 @@ public class Investment {
         updatedAt = LocalDateTime.now();
     }
     
-    public Investment(User user, InvestmentProduct product, BigDecimal quantity, BigDecimal purchasePrice, LocalDate purchaseDate) {
-        this.user = user;
-        this.product = product;
-        this.quantity = quantity;
-        this.purchasePrice = purchasePrice;
-        this.purchaseDate = purchaseDate;
-        this.currency = product != null ? product.getCurrency() : "EUR";
-    }
+    // Helper methods for calculations
     
-    // Business methods
-    public BigDecimal getTotalValue() {
-        BigDecimal currentPrice = product != null ? product.getCurrentPrice() : null;
-        return quantity.multiply(currentPrice != null ? currentPrice : purchasePrice);
-    }
-    
-    public BigDecimal getTotalCost() {
-        return quantity.multiply(purchasePrice);
-    }
-    
-    public BigDecimal getTotalValueInEur() {
-        BigDecimal totalValue = getTotalValue();
-        if ("EUR".equals(currency)) {
-            return totalValue;
-        }
-        // For non-EUR positions, convert using exchange rate
-        return totalValue.multiply(exchangeRate);
-    }
-    
-    public BigDecimal getTotalCostInEur() {
-        BigDecimal totalCost = getTotalCost();
-        if ("EUR".equals(currency)) {
-            return totalCost;
-        }
-        // For non-EUR positions, convert using exchange rate
-        return totalCost.multiply(exchangeRate);
-    }
-    
-    public BigDecimal getGainLoss() {
-        return getTotalValue().subtract(getTotalCost());
-    }
-    
-    public BigDecimal getGainLossInEur() {
-        return getTotalValueInEur().subtract(getTotalCostInEur());
-    }
-    
-    public BigDecimal getGainLossPercentage() {
-        BigDecimal totalCost = getTotalCost();
-        if (totalCost.compareTo(BigDecimal.ZERO) == 0) {
+    /**
+     * Calculate total invested amount (quantity * purchase price)
+     */
+    public BigDecimal getTotalInvested() {
+        if (quantity == null || purchasePrice == null) {
             return BigDecimal.ZERO;
         }
-        return getGainLoss().divide(totalCost, 4, java.math.RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+        return quantity.multiply(purchasePrice).setScale(2, RoundingMode.HALF_UP);
     }
     
-    // Helper methods
-    public String getProductName() {
-        return product != null ? product.getName() : "N/A";
+    /**
+     * Calculate total invested amount in base currency (EUR)
+     */
+    public BigDecimal getTotalInvestedInBaseCurrency() {
+        if (exchangeRate == null) {
+            return getTotalInvested();
+        }
+        return getTotalInvested().divide(exchangeRate, 2, RoundingMode.HALF_UP);
     }
     
-    public String getProductSymbol() {
-        return product != null ? product.getSymbol() : "N/A";
+    /**
+     * Calculate current market value (quantity * current price)
+     */
+    public BigDecimal getCurrentValue() {
+        if (quantity == null || product == null || product.getCurrentPrice() == null) {
+            return BigDecimal.ZERO;
+        }
+        return quantity.multiply(product.getCurrentPrice()).setScale(2, RoundingMode.HALF_UP);
     }
     
-    public InvestmentProduct.InvestmentType getProductType() {
-        return product != null ? product.getType() : null;
+    /**
+     * Calculate current market value in base currency (EUR)
+     */
+    public BigDecimal getCurrentValueInBaseCurrency() {
+        if (exchangeRate == null) {
+            return getCurrentValue();
+        }
+        return getCurrentValue().divide(exchangeRate, 2, RoundingMode.HALF_UP);
     }
     
-    public String getCurrencySymbol() {
-        try {
-            return InvestmentProduct.Currency.fromCode(currency).getSymbol();
-        } catch (Exception e) {
-            return currency;
+    /**
+     * Calculate total gain/loss (current value - total invested)
+     */
+    public BigDecimal getTotalGainLoss() {
+        return getCurrentValue().subtract(getTotalInvested()).setScale(2, RoundingMode.HALF_UP);
+    }
+    
+    /**
+     * Calculate total gain/loss in base currency
+     */
+    public BigDecimal getTotalGainLossInBaseCurrency() {
+        return getCurrentValueInBaseCurrency().subtract(getTotalInvestedInBaseCurrency()).setScale(2, RoundingMode.HALF_UP);
+    }
+    
+    /**
+     * Calculate percentage gain/loss
+     */
+    public BigDecimal getPercentageGainLoss() {
+        BigDecimal totalInvested = getTotalInvested();
+        if (totalInvested.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        
+        BigDecimal gainLoss = getTotalGainLoss();
+        return gainLoss.divide(totalInvested, 4, RoundingMode.HALF_UP)
+                      .multiply(BigDecimal.valueOf(100))
+                      .setScale(2, RoundingMode.HALF_UP);
+    }
+    
+    // Formatting methods for display
+    
+    public String getFormattedTotalInvested() {
+        return String.format("%.2f %s", getTotalInvested(), product != null ? product.getCurrency() : "");
+    }
+    
+    public String getFormattedCurrentValue() {
+        return String.format("%.2f %s", getCurrentValue(), product != null ? product.getCurrency() : "");
+    }
+    
+    public String getFormattedTotalGainLoss() {
+        BigDecimal gainLoss = getTotalGainLoss();
+        String currency = product != null ? product.getCurrency() : "";
+        String sign = gainLoss.compareTo(BigDecimal.ZERO) >= 0 ? "+" : "";
+        return String.format("%s%.2f %s", sign, gainLoss, currency);
+    }
+    
+    public String getFormattedPercentageGainLoss() {
+        BigDecimal percentage = getPercentageGainLoss();
+        String sign = percentage.compareTo(BigDecimal.ZERO) >= 0 ? "+" : "";
+        return String.format("%s%.2f%%", sign, percentage);
+    }
+    
+    public String getFormattedQuantity() {
+        if (quantity == null) return "0";
+        
+        // For stocks, show up to 6 decimal places but remove trailing zeros
+        // For crypto, might need more precision
+        if (product != null && product.getType() == InvestmentProduct.InvestmentType.CRYPTOCURRENCY) {
+            return quantity.stripTrailingZeros().toPlainString();
+        }
+        
+        // For stocks and other assets, typically show fewer decimals
+        if (quantity.compareTo(BigDecimal.ONE) >= 0) {
+            return quantity.setScale(3, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+        } else {
+            return quantity.setScale(6, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
         }
     }
     
-    public String getFormattedTotalValue() {
-        return String.format("%.2f %s", getTotalValue(), getCurrencySymbol());
+    public String getFormattedPurchasePrice() {
+        if (purchasePrice == null) return "N/A";
+        return String.format("%.2f %s", purchasePrice, product != null ? product.getCurrency() : "");
     }
     
-    public String getFormattedTotalCost() {
-        return String.format("%.2f %s", getTotalCost(), getCurrencySymbol());
+    /**
+     * Check if this investment is profitable
+     */
+    public boolean isProfitable() {
+        return getTotalGainLoss().compareTo(BigDecimal.ZERO) > 0;
     }
     
+    /**
+     * Get CSS class for gain/loss styling
+     */
+    public String getGainLossCssClass() {
+        BigDecimal gainLoss = getTotalGainLoss();
+        if (gainLoss.compareTo(BigDecimal.ZERO) > 0) {
+            return "text-success"; // Green for profit
+        } else if (gainLoss.compareTo(BigDecimal.ZERO) < 0) {
+            return "text-danger";  // Red for loss
+        }
+        return "text-muted";       // Grey for break-even
+    }
 }

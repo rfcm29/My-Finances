@@ -36,7 +36,7 @@ public class Budget {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @NotNull(message = "Categoria é obrigatória")
-    private Category category;
+    private TransactionCategory category;
     
     @Column(nullable = false, length = 100)
     @NotNull(message = "Nome é obrigatório")
@@ -80,7 +80,7 @@ public class Budget {
         updatedAt = LocalDateTime.now();
     }
     
-    public Budget(User user, Category category, BigDecimal amount, BudgetPeriod period, LocalDate startDate, LocalDate endDate) {
+    public Budget(User user, TransactionCategory category, BigDecimal amount, BudgetPeriod period, LocalDate startDate, LocalDate endDate) {
         this.user = user;
         this.category = category;
         this.amount = amount;

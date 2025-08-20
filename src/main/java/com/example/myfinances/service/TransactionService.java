@@ -1,7 +1,7 @@
 package com.example.myfinances.service;
 
 import com.example.myfinances.model.Account;
-import com.example.myfinances.model.Category;
+import com.example.myfinances.model.TransactionCategory;
 import com.example.myfinances.model.Transaction;
 import com.example.myfinances.model.User;
 import com.example.myfinances.repository.TransactionRepository;
@@ -33,7 +33,7 @@ public class TransactionService {
                 transaction.getType(), transaction.getReceiptUrl());
     }
 
-    public Transaction createTransaction(Account account, Category category, BigDecimal amount, 
+    public Transaction createTransaction(Account account, TransactionCategory category, BigDecimal amount, 
                                        String description, LocalDate date, Transaction.TransactionType type, String receiptUrl) {
         log.info("Creating transaction for account ID: {} with amount: {}", account.getId(), amount);
         
@@ -75,7 +75,7 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByCategory(User user, Category category) {
+    public List<Transaction> findTransactionsByCategory(User user, TransactionCategory category) {
         return transactionRepository.findTransactionsByCategory(user, category);
     }
 
@@ -95,7 +95,7 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public BigDecimal getTotalByUserAndCategory(User user, Category category) {
+    public BigDecimal getTotalByUserAndCategory(User user, TransactionCategory category) {
         return transactionRepository.getTotalByUserAndCategory(user, category);
     }
 

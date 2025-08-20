@@ -24,8 +24,8 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"accounts", "categories", "budgets", "investments"})
-@ToString(exclude = {"password", "accounts", "categories", "budgets", "investments"})
+@EqualsAndHashCode(exclude = {"accounts", "categories", "budgets", "investments", "savedProducts"})
+@ToString(exclude = {"password", "accounts", "categories", "budgets", "investments", "savedProducts"})
 public class User implements UserDetails {
     
     @Id
@@ -69,13 +69,17 @@ public class User implements UserDetails {
     private Set<Account> accounts = new HashSet<>();
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Category> categories = new HashSet<>();
+    private Set<TransactionCategory> categories = new HashSet<>();
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Budget> budgets = new HashSet<>();
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Investment> investments = new HashSet<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserInvestmentProduct> savedProducts = new HashSet<>();
+    
     
     @PrePersist
     protected void onCreate() {

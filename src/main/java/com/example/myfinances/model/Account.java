@@ -40,10 +40,23 @@ public class Account {
     @Size(max = 100, message = "Nome da conta não pode ter mais de 100 caracteres")
     private String name;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @NotNull(message = "Tipo de conta é obrigatório")
-    private AccountType type;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    @NotNull(message = "Categoria da conta é obrigatória")
+    private AccountCategory categoryEntity;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subcategory_id", nullable = true)
+    private AccountSubcategory subcategoryEntity;
+    
+    // Legacy string fields for backward compatibility during migration
+    @Column(nullable = true)
+    @Size(max = 50, message = "Categoria não pode ter mais de 50 caracteres")
+    private String category;
+    
+    @Column(nullable = true)
+    @Size(max = 50, message = "Subcategoria não pode ter mais de 50 caracteres")
+    private String subcategory;
     
     @Column(nullable = false, precision = 15, scale = 2)
     @NotNull(message = "Saldo é obrigatório")
@@ -53,6 +66,10 @@ public class Account {
     @NotBlank(message = "Moeda é obrigatória")
     @Size(min = 3, max = 3, message = "Moeda deve ter 3 caracteres")
     private String currency = "EUR";
+    
+    @Column(nullable = false, length = 50)
+    @NotBlank(message = "Tipo da conta é obrigatório")
+    private String type;
     
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -77,29 +94,139 @@ public class Account {
         updatedAt = LocalDateTime.now();
     }
     
-    public Account(User user, String name, AccountType type, String currency) {
+    public Account(User user, String name, String category, String subcategory, String currency) {
         this.user = user;
         this.name = name;
-        this.type = type;
+        this.category = category;
+        this.subcategory = subcategory;
         this.currency = currency;
+        // Set type based on legacy category name
+        this.type = determineLegacyAccountType(category);
     }
     
-    public enum AccountType {
-        CHECKING("Conta à Ordem"),
-        SAVINGS("Conta Poupança"),
-        CREDIT_CARD("Cartão de Crédito"),
-        CASH("Dinheiro"),
-        INVESTMENT("Investimento");
-        
-        private final String displayName;
-        
-        AccountType(String displayName) {
-            this.displayName = displayName;
+    private String determineLegacyAccountType(String categoryName) {
+        if (categoryName == null) {
+            return "OTHER";
         }
         
-        public String getDisplayName() {
-            return displayName;
+        switch (categoryName) {
+            case "Contas Bancárias":
+                return "CHECKING";
+            case "Poupanças do Estado":
+                return "SAVINGS";
+            case "Crédito":
+                return "CREDIT_CARD";
+            case "Carteiras Digitais":
+                return "OTHER";
+            case "Dinheiro":
+                return "CASH";
+            case "Investimentos":
+                return "INVESTMENT";
+            default:
+                return "OTHER";
         }
+    }
+    
+    public Account(User user, String name, AccountCategory categoryEntity, AccountSubcategory subcategoryEntity, String currency) {
+        this.user = user;
+        this.name = name;
+        this.categoryEntity = categoryEntity;
+        this.subcategoryEntity = subcategoryEntity;
+        this.currency = currency;
+        // Set legacy fields for compatibility
+        this.category = categoryEntity != null ? categoryEntity.getName() : null;
+        this.subcategory = subcategoryEntity != null ? subcategoryEntity.getName() : null;
+        // Set type based on category
+        this.type = determineAccountType(categoryEntity);
+    }
+    
+    private String determineAccountType(AccountCategory category) {
+        if (category == null) {
+            return "OTHER";
+        }
+        
+        switch (category.getCode()) {
+            case "BANK":
+                return "CHECKING";
+            case "STATE_SAVINGS":
+                return "SAVINGS";
+            case "CREDIT":
+                return "CREDIT_CARD";
+            case "DIGITAL":
+                return "OTHER";
+            case "CASH":
+                return "CASH";
+            case "INVESTMENT":
+                return "INVESTMENT";
+            default:
+                return "OTHER";
+        }
+    }
+    
+    // Helper methods for account type checking
+    public boolean isBankAccount() {
+        if (categoryEntity != null) {
+            return "BANK".equals(categoryEntity.getCode());
+        }
+        return "Contas Bancárias".equals(category);
+    }
+    
+    public boolean isStateSavings() {
+        if (categoryEntity != null) {
+            return "STATE_SAVINGS".equals(categoryEntity.getCode());
+        }
+        return "Poupanças do Estado".equals(category);
+    }
+    
+    public boolean isCredit() {
+        if (categoryEntity != null) {
+            return "CREDIT".equals(categoryEntity.getCode());
+        }
+        return "Crédito".equals(category);
+    }
+    
+    public boolean isDigitalWallet() {
+        if (categoryEntity != null) {
+            return "DIGITAL".equals(categoryEntity.getCode());
+        }
+        return "Carteiras Digitais".equals(category);
+    }
+    
+    public boolean isCash() {
+        if (categoryEntity != null) {
+            return "CASH".equals(categoryEntity.getCode());
+        }
+        return "Dinheiro".equals(category);
+    }
+    
+    public boolean isInvestment() {
+        if (categoryEntity != null) {
+            return "INVESTMENT".equals(categoryEntity.getCode());
+        }
+        return "Investimentos".equals(category);
+    }
+    
+    public String getDisplayName() {
+        if (categoryEntity != null) {
+            if (subcategoryEntity != null) {
+                return categoryEntity.getName() + " - " + subcategoryEntity.getName();
+            }
+            return categoryEntity.getName();
+        }
+        // Legacy fallback
+        if (subcategory != null && !subcategory.isEmpty()) {
+            return category + " - " + subcategory;
+        }
+        return category;
+    }
+    
+    // Convenience methods to get category and subcategory names
+    public String getCategoryName() {
+        return categoryEntity != null ? categoryEntity.getName() : category;
+    }
+    
+    public String getSubcategoryName() {
+        return subcategoryEntity != null ? subcategoryEntity.getName() : subcategory;
     }
     
 }

@@ -23,14 +23,14 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT a FROM Account a WHERE a.user = :user AND a.active = true ORDER BY a.createdAt DESC")
     List<Account> findActiveAccountsByUser(@Param("user") User user);
     
-    @Query("SELECT SUM(a.balance) FROM Account a WHERE a.user = :user AND a.active = true AND a.type != 'CREDIT_CARD'")
+    @Query("SELECT SUM(a.balance) FROM Account a WHERE a.user = :user AND a.active = true AND a.category != 'Crédito'")
     BigDecimal getTotalBalanceByUser(@Param("user") User user);
     
-    @Query("SELECT a FROM Account a WHERE a.user = :user AND a.type = :type AND a.active = true")
-    List<Account> findByUserAndType(@Param("user") User user, @Param("type") Account.AccountType type);
+    @Query("SELECT a FROM Account a WHERE a.user = :user AND a.category = :category AND a.active = true")
+    List<Account> findByUserAndCategory(@Param("user") User user, @Param("category") String category);
     
-    @Query("SELECT SUM(a.balance) FROM Account a WHERE a.user = :user AND a.type = :type AND a.active = true")
-    BigDecimal getTotalBalanceByUserAndType(@Param("user") User user, @Param("type") Account.AccountType type);
+    @Query("SELECT SUM(a.balance) FROM Account a WHERE a.user = :user AND a.category = :category AND a.active = true")
+    BigDecimal getTotalBalanceByUserAndCategory(@Param("user") User user, @Param("category") String category);
     
     @Query("SELECT COUNT(a) FROM Account a WHERE a.user = :user AND a.active = true")
     long countActiveAccountsByUser(@Param("user") User user);

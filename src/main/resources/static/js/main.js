@@ -10,6 +10,7 @@ class MyFinances {
         this.initializeComponents();
         this.setupFormValidation();
         this.setupToasts();
+        this.autoHideAlerts();
     }
 
     setupEventListeners() {
@@ -27,10 +28,10 @@ class MyFinances {
             }
         });
 
-        // Auto-hide alerts
-        document.addEventListener('DOMContentLoaded', () => {
-            this.autoHideAlerts();
-        });
+        // Setup HTMX handlers
+        if (typeof htmx !== 'undefined') {
+            this.setupHTMXHandlers();
+        }
 
         // Number formatting for currency inputs
         document.addEventListener('input', (e) => {

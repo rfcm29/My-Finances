@@ -1,7 +1,7 @@
 package com.example.myfinances.repository;
 
 import com.example.myfinances.model.Budget;
-import com.example.myfinances.model.Category;
+import com.example.myfinances.model.TransactionCategory;
 import com.example.myfinances.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,13 +23,13 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
     List<Budget> findActiveByUser(@Param("user") User user);
     
     @Query("SELECT b FROM Budget b WHERE b.user = :user AND b.category = :category AND b.active = true")
-    List<Budget> findByUserAndCategoryAndActiveTrue(@Param("user") User user, @Param("category") Category category);
+    List<Budget> findByUserAndCategoryAndActiveTrue(@Param("user") User user, @Param("category") TransactionCategory category);
     
     @Query("SELECT b FROM Budget b WHERE b.user = :user AND b.startDate <= :date AND b.endDate >= :date AND b.active = true")
     List<Budget> findActiveBudgetsByUserAndDate(@Param("user") User user, @Param("date") LocalDate date);
     
     @Query("SELECT b FROM Budget b WHERE b.user = :user AND b.category = :category AND b.startDate <= :date AND b.endDate >= :date AND b.active = true")
-    Optional<Budget> findActiveBudgetByUserAndCategoryAndDate(@Param("user") User user, @Param("category") Category category, @Param("date") LocalDate date);
+    Optional<Budget> findActiveBudgetByUserAndCategoryAndDate(@Param("user") User user, @Param("category") TransactionCategory category, @Param("date") LocalDate date);
     
     @Query("SELECT b FROM Budget b WHERE b.user = :user AND b.period = :period AND b.active = true")
     List<Budget> findByUserAndPeriodAndActiveTrue(@Param("user") User user, @Param("period") Budget.BudgetPeriod period);
@@ -38,5 +38,5 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
     long countActiveBudgetsByUser(@Param("user") User user);
     
     boolean existsByUserAndCategoryAndActiveTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-        User user, Category category, LocalDate endDate, LocalDate startDate);
+        User user, TransactionCategory category, LocalDate endDate, LocalDate startDate);
 }

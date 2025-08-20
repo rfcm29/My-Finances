@@ -1,6 +1,8 @@
 package com.example.myfinances.service;
 
 import com.example.myfinances.model.Account;
+import com.example.myfinances.model.AccountCategory;
+import com.example.myfinances.model.AccountSubcategory;
 import com.example.myfinances.model.User;
 import com.example.myfinances.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +21,33 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final AccountCategoryService accountCategoryService;
 
-    public Account createAccount(User user, String name, Account.AccountType type, String currency, BigDecimal initialBalance) {
-        log.info("Creating account '{}' for user ID: {}", name, user.getId());
+    public Account createAccount(User user, String name, String category, String subcategory, String currency, BigDecimal initialBalance) {
+        log.info("Creating account '{}' with category '{}' for user ID: {}", name, category, user.getId());
+        
+        // Look up the category entity by name
+        AccountCategory categoryEntity = accountCategoryService.findCategoryByName(category)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + category));
+        
+        // Look up the subcategory entity by name if provided
+        AccountSubcategory subcategoryEntity = null;
+        if (subcategory != null && !subcategory.trim().isEmpty()) {
+            subcategoryEntity = accountCategoryService.findSubcategoryByName(subcategory)
+                    .orElseThrow(() -> new IllegalArgumentException("Subcategory not found: " + subcategory));
+        }
+        
+        // Determine account type based on category
+        String accountType = determineAccountType(categoryEntity);
         
         Account account = Account.builder()
                 .user(user)
                 .name(name)
-                .type(type)
+                .categoryEntity(categoryEntity)
+                .subcategoryEntity(subcategoryEntity)
+                .category(category)  // Keep for backward compatibility
+                .subcategory(subcategory)  // Keep for backward compatibility
+                .type(accountType)
                 .balance(initialBalance != null ? initialBalance : BigDecimal.ZERO)
                 .currency(currency != null ? currency : "EUR")
                 .active(true)
@@ -44,8 +65,13 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public List<Account> findAccountsByUserAndType(User user, Account.AccountType type) {
-        return accountRepository.findByUserAndType(user, type);
+    public List<Account> findAllAccountsByUser(User user) {
+        return accountRepository.findByUser(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Account> findAccountsByUserAndCategory(User user, String category) {
+        return accountRepository.findByUserAndCategory(user, category);
     }
 
     @Transactional(readOnly = true)
@@ -65,8 +91,8 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public BigDecimal getTotalBalanceByType(User user, Account.AccountType type) {
-        return accountRepository.getTotalBalanceByUserAndType(user, type);
+    public BigDecimal getTotalBalanceByCategory(User user, String category) {
+        return accountRepository.getTotalBalanceByUserAndCategory(user, category);
     }
 
     public Account updateAccount(Account account) {
@@ -138,5 +164,28 @@ public class AccountService {
 
         log.info("Transfer completed: {} {} from account {} to account {}", 
                 amount, fromAccount.getCurrency(), fromAccountId, toAccountId);
+    }
+    
+    private String determineAccountType(AccountCategory category) {
+        if (category == null) {
+            return "OTHER";
+        }
+        
+        switch (category.getCode()) {
+            case "BANK":
+                return "CHECKING";
+            case "STATE_SAVINGS":
+                return "SAVINGS";
+            case "CREDIT":
+                return "CREDIT_CARD";
+            case "DIGITAL":
+                return "OTHER";
+            case "CASH":
+                return "CASH";
+            case "INVESTMENT":
+                return "INVESTMENT";
+            default:
+                return "OTHER";
+        }
     }
 }

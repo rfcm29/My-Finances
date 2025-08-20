@@ -23,7 +23,7 @@
 
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
-                <div class="card">
+                <div class="card card-primary">
                     <div class="card-header">
                         <h6 class="card-title mb-0">
                             <i class="fas fa-wallet me-2"></i>Detalhes da Conta
@@ -40,44 +40,39 @@
                                 <input type="text" class="form-control form-control-lg" 
                                        th:field="*{name}"
                                        th:class="${#fields.hasErrors('name')} ? 'form-control form-control-lg is-invalid' : 'form-control form-control-lg'"
+                                       id="name"
                                        placeholder="Ex: Conta Corrente CGD" required autofocus>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                             </div>
 
-                            <!-- Account Type -->
+                            <!-- Account Category -->
                             <div class="mb-3">
-                                <label class="form-label">Tipo de Conta</label>
-                                <div class="row g-2">
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="type" id="checking" value="CHECKING" th:field="*{type}">
-                                        <label class="btn btn-outline-primary w-100 account-type-btn" for="checking">
-                                            <i class="fas fa-university d-block mb-1"></i>
-                                            <small>Conta à Ordem</small>
-                                        </label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="type" id="savings" value="SAVINGS" th:field="*{type}">
-                                        <label class="btn btn-outline-success w-100 account-type-btn" for="savings">
-                                            <i class="fas fa-piggy-bank d-block mb-1"></i>
-                                            <small>Poupança</small>
-                                        </label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="type" id="credit" value="CREDIT_CARD" th:field="*{type}">
-                                        <label class="btn btn-outline-danger w-100 account-type-btn" for="credit">
-                                            <i class="fas fa-credit-card d-block mb-1"></i>
-                                            <small>Cartão Crédito</small>
-                                        </label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="type" id="cash" value="CASH" th:field="*{type}">
-                                        <label class="btn btn-outline-warning w-100 account-type-btn" for="cash">
-                                            <i class="fas fa-money-bill-wave d-block mb-1"></i>
-                                            <small>Dinheiro</small>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                                <label for="category" class="form-label">
+                                    <i class="fas fa-folder me-2"></i>Categoria
+                                </label>
+                                <select class="form-select" 
+                                        th:field="*{category}"
+                                        th:class="${#fields.hasErrors('category')} ? 'form-select is-invalid' : 'form-select'"
+                                        id="category" 
+                                        required>
+                                    <option value="">Selecione uma categoria</option>
+                                    <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+                            </div>
+
+                            <!-- Account Subcategory -->
+                            <div class="mb-3" id="subcategoryDiv" style="display: none;">
+                                <label for="subcategory" class="form-label">
+                                    <i class="fas fa-tag me-2"></i>Subcategoria
+                                </label>
+                                <select class="form-select" 
+                                        th:field="*{subcategory}"
+                                        th:class="${#fields.hasErrors('subcategory')} ? 'form-select is-invalid' : 'form-select'"
+                                        id="subcategory">
+                                    <option value="">Selecione uma subcategoria</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('subcategory')}" th:errors="*{subcategory}"></div>
                             </div>
 
                             <!-- Currency -->
@@ -88,6 +83,7 @@
                                 <select class="form-select" 
                                         th:field="*{currency}"
                                         th:class="${#fields.hasErrors('currency')} ? 'form-select is-invalid' : 'form-select'"
+                                        id="currency">"
                                         required>
                                     <option value="EUR">EUR - Euro (€)</option>
                                     <option value="USD">USD - Dólar Americano ($)</option>
@@ -107,6 +103,7 @@
                                     <input type="number" step="0.01" min="0.00" class="form-control form-control-lg" 
                                            th:field="*{initialBalance}"
                                            th:class="${#fields.hasErrors('initialBalance')} ? 'form-control form-control-lg is-invalid' : 'form-control form-control-lg'"
+                                           id="initialBalance"
                                            placeholder="0,00">
                                     <span class="input-group-text">€</span>
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('initialBalance')}" th:errors="*{initialBalance}"></div>
@@ -132,28 +129,28 @@
                     </div>
                 </div>
 
-                <!-- Account Type Info Card -->
+                <!-- Category Info Card -->
                 <div class="card mt-4">
                     <div class="card-body">
                         <h6 class="card-title">
-                            <i class="fas fa-lightbulb text-warning me-2"></i>Tipos de Conta
+                            <i class="fas fa-lightbulb text-warning me-2"></i>Categorias de Conta
                         </h6>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="d-flex">
                                     <i class="fas fa-university text-primary me-2 mt-1"></i>
                                     <div>
-                                        <strong>Conta à Ordem</strong>
-                                        <br><small class="text-muted">Conta bancária para movimentos do dia-a-dia</small>
+                                        <strong>Contas Bancárias</strong>
+                                        <br><small class="text-muted">Contas bancárias tradicionais (à ordem, poupança, ordenado, jovem)</small>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex">
-                                    <i class="fas fa-piggy-bank text-success me-2 mt-1"></i>
+                                    <i class="fas fa-landmark text-success me-2 mt-1"></i>
                                     <div>
-                                        <strong>Poupança</strong>
-                                        <br><small class="text-muted">Conta para guardar dinheiro a longo prazo</small>
+                                        <strong>Poupanças do Estado</strong>
+                                        <br><small class="text-muted">Certificados de aforro, tesouro e obrigações</small>
                                     </div>
                                 </div>
                             </div>
@@ -161,8 +158,17 @@
                                 <div class="d-flex">
                                     <i class="fas fa-credit-card text-danger me-2 mt-1"></i>
                                     <div>
-                                        <strong>Cartão de Crédito</strong>
-                                        <br><small class="text-muted">Para rastrear gastos no cartão de crédito</small>
+                                        <strong>Crédito</strong>
+                                        <br><small class="text-muted">Cartões de crédito, empréstimos pessoais, habitação, auto</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <i class="fas fa-mobile-alt text-info me-2 mt-1"></i>
+                                    <div>
+                                        <strong>Carteiras Digitais</strong>
+                                        <br><small class="text-muted">PayPal, Revolut, MB Way, Wise, outras</small>
                                     </div>
                                 </div>
                             </div>
@@ -171,7 +177,16 @@
                                     <i class="fas fa-money-bill-wave text-warning me-2 mt-1"></i>
                                     <div>
                                         <strong>Dinheiro</strong>
-                                        <br><small class="text-muted">Dinheiro físico na carteira ou em casa</small>
+                                        <br><small class="text-muted">Dinheiro físico na carteira, cofre ou mealheiro</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <i class="fas fa-chart-line text-purple me-2 mt-1"></i>
+                                    <div>
+                                        <strong>Investimentos</strong>
+                                        <br><small class="text-muted">Contas de corretagem, bancos de investimento, cripto, fundos</small>
                                     </div>
                                 </div>
                             </div>
@@ -197,20 +212,78 @@
         </div>
     </div>
 
-    <script layout:fragment="scripts">
-        // Auto-focus on name input after selecting account type
-        const typeRadios = document.querySelectorAll('input[name="type"]');
+    <script layout:fragment="scripts" th:inline="javascript">
+        // Category-Subcategory mapping from server
+        const categorySubcategories = /*[[${categorySubcategories}]]*/ {};
+
+        const categorySelect = document.getElementById('category');
+        const subcategorySelect = document.getElementById('subcategory');
+        const subcategoryDiv = document.getElementById('subcategoryDiv');
         const nameInput = document.querySelector('input[name="name"]');
         
-        typeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                setTimeout(() => {
-                    if (nameInput && !nameInput.value) {
-                        nameInput.focus();
-                    }
-                }, 100);
-            });
+        // Handle category change
+        categorySelect.addEventListener('change', function() {
+            const selectedCategory = this.value;
+            
+            // Clear subcategory options
+            subcategorySelect.innerHTML = '<option value="">Selecione uma subcategoria</option>';
+            
+            if (selectedCategory && categorySubcategories[selectedCategory] && categorySubcategories[selectedCategory].length > 0) {
+                // Show subcategory dropdown - this category has subcategories
+                subcategoryDiv.style.display = 'block';
+                subcategorySelect.required = true;
+                
+                // Populate subcategories
+                categorySubcategories[selectedCategory].forEach(subcategory => {
+                    const option = document.createElement('option');
+                    option.value = subcategory;
+                    option.textContent = subcategory;
+                    subcategorySelect.appendChild(option);
+                });
+            } else {
+                // Hide subcategory dropdown - this category has no subcategories
+                subcategoryDiv.style.display = 'none';
+                subcategorySelect.required = false;
+                subcategorySelect.value = '';
+            }
+            
+            // Update name placeholder
+            updateNamePlaceholder(selectedCategory, '');
         });
+        
+        // Handle subcategory change
+        subcategorySelect.addEventListener('change', function() {
+            const category = categorySelect.value;
+            const subcategory = this.value;
+            updateNamePlaceholder(category, subcategory);
+        });
+        
+        function updateNamePlaceholder(category, subcategory) {
+            if (!nameInput || nameInput.value) return;
+            
+            let suggestion = '';
+            if (subcategory) {
+                suggestion = subcategory + ' ';
+            } else if (category) {
+                switch(category) {
+                    case 'Carteiras Digitais':
+                        suggestion = 'PayPal';
+                        break;
+                    case 'Dinheiro':
+                        suggestion = 'Carteira';
+                        break;
+                    case 'Investimentos':
+                        suggestion = 'Conta Investimento ';
+                        break;
+                    default:
+                        suggestion = category + ' ';
+                        break;
+                }
+            }
+            
+            nameInput.placeholder = suggestion ? 'Ex: ' + suggestion : 'Ex: Conta à Ordem CGD';
+        }
+        
         
         // Format balance input
         const balanceInput = document.querySelector('input[name="initialBalance"]');
@@ -220,33 +293,6 @@
                 this.value = value;
             });
         }
-        
-        // Auto-suggest account names based on type
-        typeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (nameInput && !nameInput.value) {
-                    const type = this.value;
-                    let suggestion = '';
-                    
-                    switch(type) {
-                        case 'CHECKING':
-                            suggestion = 'Conta Corrente ';
-                            break;
-                        case 'SAVINGS':
-                            suggestion = 'Conta Poupança ';
-                            break;
-                        case 'CREDIT_CARD':
-                            suggestion = 'Cartão de Crédito ';
-                            break;
-                        case 'CASH':
-                            suggestion = 'Carteira';
-                            break;
-                    }
-                    
-                    nameInput.placeholder = 'Ex: ' + suggestion;
-                }
-            });
-        });
     </script>
 
     <style layout:fragment="styles">

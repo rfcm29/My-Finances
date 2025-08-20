@@ -36,7 +36,7 @@ public class Transaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @NotNull(message = "Categoria é obrigatória")
-    private Category category;
+    private TransactionCategory category;
     
     @Column(nullable = false, precision = 15, scale = 2)
     @NotNull(message = "Valor é obrigatório")
@@ -76,7 +76,7 @@ public class Transaction {
         updatedAt = LocalDateTime.now();
     }
     
-    public Transaction(Account account, Category category, BigDecimal amount, String description, LocalDate date, TransactionType type) {
+    public Transaction(Account account, TransactionCategory category, BigDecimal amount, String description, LocalDate date, TransactionType type) {
         this.account = account;
         this.category = category;
         this.amount = amount;

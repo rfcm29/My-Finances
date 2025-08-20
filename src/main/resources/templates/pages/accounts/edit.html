@@ -45,40 +45,34 @@
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                             </div>
 
-                            <!-- Account Type -->
+                            <!-- Account Category -->
                             <div class="mb-3">
-                                <label class="form-label">Tipo de Conta</label>
-                                <div class="row g-2">
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="type" id="checking" value="CHECKING" th:field="*{type}">
-                                        <label class="btn btn-outline-primary w-100 account-type-btn" for="checking">
-                                            <i class="fas fa-university d-block mb-1"></i>
-                                            <small>Conta à Ordem</small>
-                                        </label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="type" id="savings" value="SAVINGS" th:field="*{type}">
-                                        <label class="btn btn-outline-success w-100 account-type-btn" for="savings">
-                                            <i class="fas fa-piggy-bank d-block mb-1"></i>
-                                            <small>Poupança</small>
-                                        </label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="type" id="credit" value="CREDIT_CARD" th:field="*{type}">
-                                        <label class="btn btn-outline-danger w-100 account-type-btn" for="credit">
-                                            <i class="fas fa-credit-card d-block mb-1"></i>
-                                            <small>Cartão Crédito</small>
-                                        </label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="type" id="cash" value="CASH" th:field="*{type}">
-                                        <label class="btn btn-outline-warning w-100 account-type-btn" for="cash">
-                                            <i class="fas fa-money-bill-wave d-block mb-1"></i>
-                                            <small>Dinheiro</small>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                                <label for="category" class="form-label">
+                                    <i class="fas fa-folder me-2"></i>Categoria
+                                </label>
+                                <select class="form-select" 
+                                        th:field="*{category}"
+                                        th:class="${#fields.hasErrors('category')} ? 'form-select is-invalid' : 'form-select'"
+                                        id="category" 
+                                        required>
+                                    <option value="">Selecione uma categoria</option>
+                                    <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+                            </div>
+
+                            <!-- Account Subcategory -->
+                            <div class="mb-3" id="subcategoryDiv" style="display: none;">
+                                <label for="subcategory" class="form-label">
+                                    <i class="fas fa-tag me-2"></i>Subcategoria
+                                </label>
+                                <select class="form-select" 
+                                        th:field="*{subcategory}"
+                                        th:class="${#fields.hasErrors('subcategory')} ? 'form-select is-invalid' : 'form-select'"
+                                        id="subcategory">
+                                    <option value="">Selecione uma subcategoria</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('subcategory')}" th:errors="*{subcategory}"></div>
                             </div>
 
                             <!-- Currency -->
@@ -178,6 +172,77 @@
     </div>
 
     <script layout:fragment="scripts">
+        // Category-Subcategory mapping from server
+        const categorySubcategories = /*[[${categorySubcategories}]]*/ {};
+        
+        const categorySelect = document.getElementById('category');
+        const subcategorySelect = document.getElementById('subcategory');
+        const subcategoryDiv = document.getElementById('subcategoryDiv');
+        
+        // Initialize subcategory dropdown on page load
+        function initializeSubcategories() {
+            const selectedCategory = categorySelect.value;
+            
+            // Clear subcategory options
+            subcategorySelect.innerHTML = '<option value="">Selecione uma subcategoria</option>';
+            
+            if (selectedCategory && categorySubcategories[selectedCategory] && categorySubcategories[selectedCategory].length > 0) {
+                // Show subcategory dropdown - this category has subcategories
+                subcategoryDiv.style.display = 'block';
+                subcategorySelect.required = true;
+                
+                // Populate subcategories
+                categorySubcategories[selectedCategory].forEach(subcategory => {
+                    const option = document.createElement('option');
+                    option.value = subcategory;
+                    option.textContent = subcategory;
+                    // Select current subcategory if it matches
+                    const currentSubcategory = /*[[${accountForm.subcategory}]]*/ '';
+                    if (subcategory === currentSubcategory) {
+                        option.selected = true;
+                    }
+                    subcategorySelect.appendChild(option);
+                });
+            } else {
+                // Hide subcategory dropdown - this category has no subcategories
+                subcategoryDiv.style.display = 'none';
+                subcategorySelect.required = false;
+                subcategorySelect.value = '';
+            }
+        }
+        
+        // Handle category change
+        categorySelect.addEventListener('change', function() {
+            const selectedCategory = this.value;
+            
+            // Clear subcategory options
+            subcategorySelect.innerHTML = '<option value="">Selecione uma subcategoria</option>';
+            
+            if (selectedCategory && categorySubcategories[selectedCategory] && categorySubcategories[selectedCategory].length > 0) {
+                // Show subcategory dropdown - this category has subcategories
+                subcategoryDiv.style.display = 'block';
+                subcategorySelect.required = true;
+                
+                // Populate subcategories
+                categorySubcategories[selectedCategory].forEach(subcategory => {
+                    const option = document.createElement('option');
+                    option.value = subcategory;
+                    option.textContent = subcategory;
+                    subcategorySelect.appendChild(option);
+                });
+            } else {
+                // Hide subcategory dropdown - this category has no subcategories
+                subcategoryDiv.style.display = 'none';
+                subcategorySelect.required = false;
+                subcategorySelect.value = '';
+            }
+        });
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSubcategories();
+        });
+        
         // Format balance input
         const balanceInput = document.querySelector('input[name="initialBalance"]');
         if (balanceInput) {

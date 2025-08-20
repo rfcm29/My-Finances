@@ -1,11 +1,12 @@
 package com.example.myfinances.controller.web;
 
 import com.example.myfinances.model.Account;
-import com.example.myfinances.model.Category;
+import com.example.myfinances.model.TransactionCategory;
 import com.example.myfinances.model.Transaction;
 import com.example.myfinances.model.User;
+import com.example.myfinances.security.SecurityUtils;
 import com.example.myfinances.service.AccountService;
-import com.example.myfinances.service.CategoryService;
+import com.example.myfinances.service.TransactionCategoryService;
 import com.example.myfinances.service.TransactionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -39,7 +40,7 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final AccountService accountService;
-    private final CategoryService categoryService;
+    private final TransactionCategoryService transactionCategoryService;
 
     @GetMapping
     public String listTransactions(
@@ -55,7 +56,7 @@ public class TransactionController {
             Model model,
             HttpServletRequest request) {
         
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         Sort sort = Sort.by(sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy)
                 .and(Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -65,7 +66,7 @@ public class TransactionController {
         
         // Get filter options
         List<Account> accounts = accountService.findActiveAccountsByUser(user);
-        List<Category> categories = categoryService.findCategoriesByUser(user);
+        List<TransactionCategory> categories = transactionCategoryService.findCategoriesByUser(user);
         
         model.addAttribute("transactions", transactions);
         model.addAttribute("accounts", accounts);
@@ -86,10 +87,10 @@ public class TransactionController {
 
     @GetMapping("/add")
     public String addTransactionForm(Authentication authentication, Model model, HttpServletRequest request) {
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         List<Account> accounts = accountService.findActiveAccountsByUser(user);
-        List<Category> categories = categoryService.findCategoriesByUser(user);
+        List<TransactionCategory> categories = transactionCategoryService.findCategoriesByUser(user);
         
         model.addAttribute("transactionForm", new TransactionForm());
         model.addAttribute("accounts", accounts);
@@ -107,11 +108,11 @@ public class TransactionController {
             Model model,
             RedirectAttributes redirectAttributes) {
         
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         if (bindingResult.hasErrors()) {
             List<Account> accounts = accountService.findActiveAccountsByUser(user);
-            List<Category> categories = categoryService.findCategoriesByUser(user);
+            List<TransactionCategory> categories = transactionCategoryService.findCategoriesByUser(user);
             
             model.addAttribute("accounts", accounts);
             model.addAttribute("categories", categories);
@@ -120,7 +121,7 @@ public class TransactionController {
 
         try {
             Optional<Account> account = accountService.findAccountByIdAndUser(form.getAccountId(), user);
-            Optional<Category> category = categoryService.findCategoryByIdAndUser(form.getCategoryId(), user);
+            Optional<TransactionCategory> category = transactionCategoryService.findCategoryByIdAndUser(form.getCategoryId(), user);
             
             if (account.isEmpty()) {
                 bindingResult.rejectValue("accountId", "error.accountId", "Conta inválida");
@@ -154,7 +155,7 @@ public class TransactionController {
             model.addAttribute("error", "Ocorreu um erro ao criar a transação. Tente novamente.");
             
             List<Account> accounts = accountService.findActiveAccountsByUser(user);
-            List<Category> categories = categoryService.findCategoriesByUser(user);
+            List<TransactionCategory> categories = transactionCategoryService.findCategoriesByUser(user);
             
             model.addAttribute("accounts", accounts);
             model.addAttribute("categories", categories);
@@ -165,7 +166,7 @@ public class TransactionController {
     @GetMapping("/edit/{id}")
     public String editTransactionForm(@PathVariable Long id, Authentication authentication, 
                                     Model model, HttpServletRequest request) {
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         Optional<Transaction> transaction = transactionService.findTransactionByIdAndUser(id, user);
         if (transaction.isEmpty()) {
@@ -173,7 +174,7 @@ public class TransactionController {
         }
         
         List<Account> accounts = accountService.findActiveAccountsByUser(user);
-        List<Category> categories = categoryService.findCategoriesByUser(user);
+        List<TransactionCategory> categories = transactionCategoryService.findCategoriesByUser(user);
         
         TransactionForm form = new TransactionForm();
         form.setAccountId(transaction.get().getAccount().getId());
@@ -201,7 +202,7 @@ public class TransactionController {
             Model model,
             RedirectAttributes redirectAttributes) {
         
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         Optional<Transaction> existingTransaction = transactionService.findTransactionByIdAndUser(id, user);
         if (existingTransaction.isEmpty()) {
@@ -210,7 +211,7 @@ public class TransactionController {
         
         if (bindingResult.hasErrors()) {
             List<Account> accounts = accountService.findActiveAccountsByUser(user);
-            List<Category> categories = categoryService.findCategoriesByUser(user);
+            List<TransactionCategory> categories = transactionCategoryService.findCategoriesByUser(user);
             
             model.addAttribute("transaction", existingTransaction.get());
             model.addAttribute("accounts", accounts);
@@ -220,7 +221,7 @@ public class TransactionController {
 
         try {
             Optional<Account> account = accountService.findAccountByIdAndUser(form.getAccountId(), user);
-            Optional<Category> category = categoryService.findCategoryByIdAndUser(form.getCategoryId(), user);
+            Optional<TransactionCategory> category = transactionCategoryService.findCategoryByIdAndUser(form.getCategoryId(), user);
             
             if (account.isEmpty() || category.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Conta ou categoria inválida");
@@ -254,7 +255,7 @@ public class TransactionController {
     @PostMapping("/delete/{id}")
     public String deleteTransaction(@PathVariable Long id, Authentication authentication, 
                                   RedirectAttributes redirectAttributes) {
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         try {
             Optional<Transaction> transaction = transactionService.findTransactionByIdAndUser(id, user);

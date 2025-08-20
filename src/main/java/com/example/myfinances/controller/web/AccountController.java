@@ -1,8 +1,12 @@
 package com.example.myfinances.controller.web;
 
 import com.example.myfinances.model.Account;
+import com.example.myfinances.model.AccountCategory;
+import com.example.myfinances.model.AccountSubcategory;
 import com.example.myfinances.model.User;
+import com.example.myfinances.security.SecurityUtils;
 import com.example.myfinances.service.AccountService;
+import com.example.myfinances.service.AccountCategoryService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -21,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -30,19 +35,34 @@ import java.util.Optional;
 public class AccountController {
 
     private final AccountService accountService;
+    private final AccountCategoryService accountCategoryService;
 
     @GetMapping
-    public String listAccounts(Authentication authentication, Model model, HttpServletRequest request) {
-        User user = (User) authentication.getPrincipal();
+    public String listAccounts(
+            @RequestParam(value = "showInactive", defaultValue = "false") boolean showInactive,
+            Authentication authentication, 
+            Model model, 
+            HttpServletRequest request) {
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
-        List<Account> accounts = accountService.findActiveAccountsByUser(user);
+        List<Account> accounts;
+        if (showInactive) {
+            accounts = accountService.findAllAccountsByUser(user);
+        } else {
+            accounts = accountService.findActiveAccountsByUser(user);
+        }
+        
         BigDecimal totalBalance = accountService.getTotalBalance(user);
         
-        // Get balances by type
-        BigDecimal checkingBalance = accountService.getTotalBalanceByType(user, Account.AccountType.CHECKING);
-        BigDecimal savingsBalance = accountService.getTotalBalanceByType(user, Account.AccountType.SAVINGS);
-        BigDecimal creditBalance = accountService.getTotalBalanceByType(user, Account.AccountType.CREDIT_CARD);
-        BigDecimal cashBalance = accountService.getTotalBalanceByType(user, Account.AccountType.CASH);
+        // Get balances by category (only active accounts)
+        BigDecimal checkingBalance = accountService.getTotalBalanceByCategory(user, "Contas Bancárias");
+        BigDecimal savingsBalance = accountService.getTotalBalanceByCategory(user, "Poupanças do Estado");
+        BigDecimal creditBalance = accountService.getTotalBalanceByCategory(user, "Crédito");
+        BigDecimal cashBalance = accountService.getTotalBalanceByCategory(user, "Dinheiro");
+        
+        // Count active and inactive accounts
+        long activeCount = accounts.stream().filter(Account::isActive).count();
+        long inactiveCount = accounts.stream().filter(account -> !account.isActive()).count();
         
         model.addAttribute("accounts", accounts);
         model.addAttribute("totalBalance", totalBalance != null ? totalBalance : BigDecimal.ZERO);
@@ -50,7 +70,10 @@ public class AccountController {
         model.addAttribute("savingsBalance", savingsBalance != null ? savingsBalance : BigDecimal.ZERO);
         model.addAttribute("creditBalance", creditBalance != null ? creditBalance : BigDecimal.ZERO);
         model.addAttribute("cashBalance", cashBalance != null ? cashBalance : BigDecimal.ZERO);
-        model.addAttribute("accountCount", accounts.size());
+        model.addAttribute("accountCount", activeCount);
+        model.addAttribute("activeCount", activeCount);
+        model.addAttribute("inactiveCount", inactiveCount);
+        model.addAttribute("showInactive", showInactive);
         model.addAttribute("currentPath", request.getRequestURI());
         
         return "pages/accounts/list";
@@ -59,6 +82,8 @@ public class AccountController {
     @GetMapping("/add")
     public String addAccountForm(Model model, HttpServletRequest request) {
         model.addAttribute("accountForm", new AccountForm());
+        model.addAttribute("categories", accountCategoryService.getCategoryNames());
+        model.addAttribute("categorySubcategories", accountCategoryService.getCategoriesWithSubcategoriesAsStrings());
         model.addAttribute("currentPath", request.getRequestURI());
         return "pages/accounts/add";
     }
@@ -71,9 +96,11 @@ public class AccountController {
             Model model,
             RedirectAttributes redirectAttributes) {
         
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         if (bindingResult.hasErrors()) {
+            model.addAttribute("categories", accountCategoryService.getCategoryNames());
+            model.addAttribute("categorySubcategories", accountCategoryService.getCategoriesWithSubcategoriesAsStrings());
             return "pages/accounts/add";
         }
 
@@ -81,7 +108,8 @@ public class AccountController {
             Account account = accountService.createAccount(
                 user, 
                 form.getName(), 
-                form.getType(), 
+                form.getCategory(),
+                form.getSubcategory(), 
                 form.getCurrency(), 
                 form.getInitialBalance()
             );
@@ -102,7 +130,7 @@ public class AccountController {
     @GetMapping("/edit/{id}")
     public String editAccountForm(@PathVariable Long id, Authentication authentication, 
                                 Model model, HttpServletRequest request) {
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         Optional<Account> account = accountService.findAccountByIdAndUser(id, user);
         if (account.isEmpty()) {
@@ -111,12 +139,15 @@ public class AccountController {
         
         AccountForm form = new AccountForm();
         form.setName(account.get().getName());
-        form.setType(account.get().getType());
+        form.setCategory(account.get().getCategoryName());
+        form.setSubcategory(account.get().getSubcategoryName());
         form.setCurrency(account.get().getCurrency());
         form.setInitialBalance(account.get().getBalance());
         
         model.addAttribute("accountForm", form);
         model.addAttribute("account", account.get());
+        model.addAttribute("categories", accountCategoryService.getCategoryNames());
+        model.addAttribute("categorySubcategories", accountCategoryService.getCategoriesWithSubcategoriesAsStrings());
         model.addAttribute("currentPath", request.getRequestURI());
         
         return "pages/accounts/edit";
@@ -131,7 +162,7 @@ public class AccountController {
             Model model,
             RedirectAttributes redirectAttributes) {
         
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         Optional<Account> existingAccount = accountService.findAccountByIdAndUser(id, user);
         if (existingAccount.isEmpty()) {
@@ -140,14 +171,33 @@ public class AccountController {
         
         if (bindingResult.hasErrors()) {
             model.addAttribute("account", existingAccount.get());
+            model.addAttribute("categories", accountCategoryService.getCategoryNames());
+            model.addAttribute("categorySubcategories", accountCategoryService.getCategoriesWithSubcategoriesAsStrings());
             return "pages/accounts/edit";
         }
 
         try {
             Account account = existingAccount.get();
             account.setName(form.getName());
-            account.setType(form.getType());
+            account.setCategory(form.getCategory());
+            account.setSubcategory(form.getSubcategory());
             account.setCurrency(form.getCurrency());
+            
+            // Update category entities
+            AccountCategory categoryEntity = accountCategoryService.findCategoryByName(form.getCategory())
+                    .orElseThrow(() -> new IllegalArgumentException("Category not found: " + form.getCategory()));
+            account.setCategoryEntity(categoryEntity);
+            
+            if (form.getSubcategory() != null && !form.getSubcategory().trim().isEmpty()) {
+                AccountSubcategory subcategoryEntity = accountCategoryService.findSubcategoryByName(form.getSubcategory())
+                        .orElseThrow(() -> new IllegalArgumentException("Subcategory not found: " + form.getSubcategory()));
+                account.setSubcategoryEntity(subcategoryEntity);
+            } else {
+                account.setSubcategoryEntity(null);
+            }
+            
+            // Update account type based on new category
+            account.setType(determineAccountType(categoryEntity));
             
             // Only update balance if it's different (this will create a transaction record)
             if (!account.getBalance().equals(form.getInitialBalance())) {
@@ -173,7 +223,7 @@ public class AccountController {
     @PostMapping("/deactivate/{id}")
     public String deactivateAccount(@PathVariable Long id, Authentication authentication, 
                                   RedirectAttributes redirectAttributes) {
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         try {
             accountService.deactivateAccount(id, user);
@@ -193,7 +243,7 @@ public class AccountController {
     @PostMapping("/reactivate/{id}")
     public String reactivateAccount(@PathVariable Long id, Authentication authentication, 
                                   RedirectAttributes redirectAttributes) {
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         try {
             accountService.reactivateAccount(id, user);
@@ -212,7 +262,7 @@ public class AccountController {
 
     @GetMapping("/transfer")
     public String transferForm(Authentication authentication, Model model, HttpServletRequest request) {
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         List<Account> accounts = accountService.findActiveAccountsByUser(user);
         
@@ -231,7 +281,7 @@ public class AccountController {
             Model model,
             RedirectAttributes redirectAttributes) {
         
-        User user = (User) authentication.getPrincipal();
+        User user = SecurityUtils.getCurrentUserOrThrow(authentication);
         
         if (bindingResult.hasErrors()) {
             List<Account> accounts = accountService.findActiveAccountsByUser(user);
@@ -282,8 +332,12 @@ public class AccountController {
         @Size(min = 2, max = 100, message = "O nome deve ter entre 2 e 100 caracteres")
         private String name;
         
-        @NotNull(message = "O tipo de conta é obrigatório")
-        private Account.AccountType type;
+        @NotBlank(message = "A categoria da conta é obrigatória")
+        @Size(max = 50, message = "A categoria não pode ter mais de 50 caracteres")
+        private String category;
+        
+        @Size(max = 50, message = "A subcategoria não pode ter mais de 50 caracteres")
+        private String subcategory;
         
         @NotBlank(message = "A moeda é obrigatória")
         @Size(min = 3, max = 3, message = "A moeda deve ter 3 caracteres (ex: EUR)")
@@ -307,5 +361,28 @@ public class AccountController {
         private BigDecimal amount;
         
         private String description = "Transferência entre contas";
+    }
+    
+    private String determineAccountType(AccountCategory category) {
+        if (category == null) {
+            return "OTHER";
+        }
+        
+        switch (category.getCode()) {
+            case "BANK":
+                return "CHECKING";
+            case "STATE_SAVINGS":
+                return "SAVINGS";
+            case "CREDIT":
+                return "CREDIT_CARD";
+            case "DIGITAL":
+                return "OTHER";
+            case "CASH":
+                return "CASH";
+            case "INVESTMENT":
+                return "INVESTMENT";
+            default:
+                return "OTHER";
+        }
     }
 }

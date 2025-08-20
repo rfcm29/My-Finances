@@ -17,8 +17,25 @@
       "Bash(cmd.exe /c \"cd /d C:\\Users\\rfcm2\\IdeaProjects\\MyFinances && mvnw.cmd clean compile\")",
       "Bash(cmd.exe:*)",
       "Bash(.mvnw.cmd clean compile -q)",
-      "Bash(where java)"
+      "Bash(where java)",
+      "Bash(mv:*)",
+      "Bash(.mvnw.cmd spring-boot:run:*)",
+      "Bash(docker exec:*)",
+      "Bash(dir srcmainresourcesstaticcss*.css)",
+      "Bash(git restore:*)",
+      "Bash(..mvnw.cmd spring-boot:run)",
+      "Bash(powershell:*)",
+      "Bash(.mvnw.cmd flyway:repair:*)",
+      "Bash(set DEV_DATABASE_URL=jdbc:postgresql://localhost:5432/MyFinances)",
+      "Bash(set DEV_DATABASE_USERNAME=admin)",
+      "Bash(set DEV_DATABASE_PASSWORD=sammy2009)",
+      "Bash(dir:*)",
+      "Bash(del:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "C:\\mnt\\c\\Users\\rfcm2\\IdeaProjects"
+    ]
   }
 }

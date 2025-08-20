@@ -1,7 +1,7 @@
 package com.example.myfinances.repository;
 
 import com.example.myfinances.model.Account;
-import com.example.myfinances.model.Category;
+import com.example.myfinances.model.TransactionCategory;
 import com.example.myfinances.model.Transaction;
 import com.example.myfinances.model.User;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findTransactionsByDateRange(@Param("user") User user, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     
     @Query("SELECT t FROM Transaction t WHERE t.account.user = :user AND t.category = :category ORDER BY t.date DESC")
-    List<Transaction> findTransactionsByCategory(@Param("user") User user, @Param("category") Category category);
+    List<Transaction> findTransactionsByCategory(@Param("user") User user, @Param("category") TransactionCategory category);
     
     @Query("SELECT t FROM Transaction t WHERE t.account.user = :user AND (LOWER(t.description) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) ORDER BY t.date DESC")
     Page<Transaction> searchTransactions(@Param("user") User user, @Param("searchTerm") String searchTerm, Pageable pageable);
@@ -40,7 +40,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     BigDecimal getTotalExpenseByUser(@Param("user") User user);
     
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.account.user = :user AND t.category = :category")
-    BigDecimal getTotalByUserAndCategory(@Param("user") User user, @Param("category") Category category);
+    BigDecimal getTotalByUserAndCategory(@Param("user") User user, @Param("category") TransactionCategory category);
     
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.account.user = :user AND t.date BETWEEN :startDate AND :endDate")
     BigDecimal getTotalByUserAndDateRange(@Param("user") User user, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);

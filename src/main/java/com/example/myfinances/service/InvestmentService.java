@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,13 +23,16 @@ import java.util.Optional;
 public class InvestmentService {
 
     private final InvestmentRepository investmentRepository;
-
-    // Basic CRUD Operations
+    private final InvestmentProductService investmentProductService;
     
-    public Investment createInvestmentPosition(User user, InvestmentProduct product, BigDecimal quantity, 
-                                             BigDecimal purchasePrice, LocalDate purchaseDate, 
-                                             BigDecimal exchangeRate, String notes) {
-        log.info("Creating investment position for user {}: {} - {}", user.getId(), product.getSymbol(), product.getName());
+    // CRUD Operations
+    
+    public Investment createInvestment(User user, InvestmentProduct product, BigDecimal quantity, 
+                                     BigDecimal purchasePrice, LocalDate purchaseDate, 
+                                     BigDecimal exchangeRate, String notes) {
+        
+        log.info("Creating investment for user {}: {} shares of {}", 
+                user.getId(), quantity, product.getSymbol());
         
         Investment investment = Investment.builder()
                 .user(user)
@@ -35,7 +40,6 @@ public class InvestmentService {
                 .quantity(quantity)
                 .purchasePrice(purchasePrice)
                 .purchaseDate(purchaseDate)
-                .currency(product.getCurrency())
                 .exchangeRate(exchangeRate != null ? exchangeRate : BigDecimal.ONE)
                 .notes(notes)
                 .build();
@@ -43,14 +47,9 @@ public class InvestmentService {
         return investmentRepository.save(investment);
     }
     
-    public Investment createInvestmentPosition(User user, InvestmentProduct product, BigDecimal quantity, 
-                                             BigDecimal purchasePrice, LocalDate purchaseDate) {
-        return createInvestmentPosition(user, product, quantity, purchasePrice, purchaseDate, BigDecimal.ONE, null);
-    }
-    
-    public Investment saveInvestment(Investment investment) {
-        log.info("Saving investment: {}", investment.getId());
-        return investmentRepository.save(investment);
+    public Investment createInvestment(User user, InvestmentProduct product, BigDecimal quantity, 
+                                     BigDecimal purchasePrice, LocalDate purchaseDate) {
+        return createInvestment(user, product, quantity, purchasePrice, purchaseDate, BigDecimal.ONE, null);
     }
     
     public Investment updateInvestment(Investment investment) {
@@ -59,248 +58,249 @@ public class InvestmentService {
     }
     
     public void deleteInvestment(Investment investment) {
-        log.info("Deleting investment: {} - {}", investment.getId(), investment.getProductName());
+        log.info("Deleting investment: {}", investment.getId());
         investmentRepository.delete(investment);
     }
     
-    // Query Operations
+    // Finder methods
     
     @Transactional(readOnly = true)
-    public List<Investment> findInvestmentsByUser(User user) {
+    public Optional<Investment> findByIdAndUser(Long id, User user) {
+        return investmentRepository.findByIdAndUser(id, user);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<Investment> findByUser(User user) {
         return investmentRepository.findByUserOrderByPurchaseDateDesc(user);
     }
     
     @Transactional(readOnly = true)
-    public List<Investment> findInvestmentsByUserAndProductType(User user, InvestmentProduct.InvestmentType type) {
-        return investmentRepository.findByUserAndProductType(user, type);
+    public List<Investment> findByUserAndProduct(User user, InvestmentProduct product) {
+        return investmentRepository.findByUserAndProductOrderByPurchaseDateDesc(user, product);
     }
     
     @Transactional(readOnly = true)
-    public List<Investment> findInvestmentsByUserAndProduct(User user, InvestmentProduct product) {
-        return investmentRepository.findByUserAndProduct(user, product);
-    }
-    
-    @Transactional(readOnly = true)
-    public List<Investment> findInvestmentsByUserAndCurrency(User user, String currency) {
-        return investmentRepository.findByUserAndCurrency(user, currency);
-    }
-    
-    @Transactional(readOnly = true)
-    public Optional<Investment> findInvestmentByIdAndUser(Long id, User user) {
-        return investmentRepository.findByIdAndUser(id, user);
+    public List<Investment> findByUserAndType(User user, InvestmentProduct.InvestmentType type) {
+        return investmentRepository.findByUserAndProductTypeOrderByPurchaseDateDesc(user, type);
     }
     
     @Transactional(readOnly = true)
     public List<Investment> searchInvestments(User user, String searchTerm) {
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
-            return findInvestmentsByUser(user);
+            return findByUser(user);
         }
-        return investmentRepository.searchByUserAndNameOrSymbolOrNotes(user, searchTerm.trim());
+        return investmentRepository.searchInvestmentsByUser(user, searchTerm.trim());
     }
     
     @Transactional(readOnly = true)
-    public List<Investment> findInvestmentsByProductSymbol(User user, String symbol) {
-        return investmentRepository.findByUserAndProductSymbol(user, symbol);
-    }
-    
-    // Portfolio Analytics
-    
-    @Transactional(readOnly = true)
-    public BigDecimal getTotalInvestedAmount(User user) {
-        BigDecimal total = investmentRepository.getTotalInvestedAmountByUser(user);
-        return total != null ? total : BigDecimal.ZERO;
+    public List<Investment> findByUserAndDateRange(User user, LocalDate startDate, LocalDate endDate) {
+        return investmentRepository.findByUserAndPurchaseDateBetweenOrderByPurchaseDateDesc(user, startDate, endDate);
     }
     
     @Transactional(readOnly = true)
-    public BigDecimal getTotalInvestedAmountInEur(User user) {
-        BigDecimal total = investmentRepository.getTotalInvestedAmountInEurByUser(user);
-        return total != null ? total : BigDecimal.ZERO;
+    public List<Investment> findRecentInvestments(User user) {
+        return investmentRepository.findRecentInvestmentsByUser(user);
     }
     
-    @Transactional(readOnly = true)
-    public BigDecimal getTotalCurrentValue(User user) {
-        BigDecimal total = investmentRepository.getTotalCurrentValueByUser(user);
-        return total != null ? total : BigDecimal.ZERO;
-    }
-    
-    @Transactional(readOnly = true)
-    public BigDecimal getTotalCurrentValueInEur(User user) {
-        BigDecimal total = investmentRepository.getTotalCurrentValueInEurByUser(user);
-        return total != null ? total : BigDecimal.ZERO;
-    }
-    
-    @Transactional(readOnly = true)
-    public BigDecimal getTotalGainLoss(User user) {
-        BigDecimal totalValue = getTotalCurrentValue(user);
-        BigDecimal totalCost = getTotalInvestedAmount(user);
-        return totalValue.subtract(totalCost);
-    }
-    
-    @Transactional(readOnly = true)
-    public BigDecimal getTotalGainLossPercentage(User user) {
-        BigDecimal totalCost = getTotalInvestedAmount(user);
-        if (totalCost.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-        
-        BigDecimal gainLoss = getTotalGainLoss(user);
-        return gainLoss.divide(totalCost, 4, java.math.RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100));
-    }
+    // Statistics and Analytics
     
     @Transactional(readOnly = true)
     public long getInvestmentCount(User user) {
-        return investmentRepository.countInvestmentsByUser(user);
+        return investmentRepository.countByUser(user);
     }
     
     @Transactional(readOnly = true)
-    public List<InvestmentProduct.InvestmentType> getDistinctInvestmentTypes(User user) {
-        return investmentRepository.findDistinctProductTypesByUser(user);
+    public long getInvestmentCountByType(User user, InvestmentProduct.InvestmentType type) {
+        return investmentRepository.countByUserAndProductType(user, type);
     }
-    
-    @Transactional(readOnly = true)
-    public List<String> getDistinctCurrencies(User user) {
-        return investmentRepository.findDistinctCurrenciesByUser(user);
-    }
-    
-    // Currency Operations
-    
-    public Investment updateExchangeRate(Long investmentId, BigDecimal newExchangeRate, User user) {
-        Optional<Investment> investmentOpt = findInvestmentByIdAndUser(investmentId, user);
-        
-        if (investmentOpt.isEmpty()) {
-            throw new IllegalArgumentException("Investment position not found or does not belong to user");
-        }
-        
-        Investment investment = investmentOpt.get();
-        investment.setExchangeRate(newExchangeRate);
-        
-        log.info("Updated exchange rate for investment {} to {}", investmentId, newExchangeRate);
-        return investmentRepository.save(investment);
-    }
-    
-    // Portfolio Analysis Methods
     
     @Transactional(readOnly = true)
     public PortfolioSummary getPortfolioSummary(User user) {
-        List<Investment> investments = findInvestmentsByUser(user);
+        List<Investment> investments = findByUser(user);
         
-        BigDecimal totalInvested = getTotalInvestedAmount(user);
-        BigDecimal totalValue = getTotalCurrentValue(user);
-        BigDecimal totalInvestedEur = getTotalInvestedAmountInEur(user);
-        BigDecimal totalValueEur = getTotalCurrentValueInEur(user);
-        BigDecimal gainLoss = getTotalGainLoss(user);
-        BigDecimal gainLossPercentage = getTotalGainLossPercentage(user);
-        long count = getInvestmentCount(user);
-        List<InvestmentProduct.InvestmentType> types = getDistinctInvestmentTypes(user);
-        List<String> currencies = getDistinctCurrencies(user);
+        BigDecimal totalInvested = BigDecimal.ZERO;
+        BigDecimal currentValue = BigDecimal.ZERO;
+        BigDecimal totalInvestedBaseCurrency = BigDecimal.ZERO;
+        BigDecimal currentValueBaseCurrency = BigDecimal.ZERO;
+        
+        for (Investment investment : investments) {
+            totalInvested = totalInvested.add(investment.getTotalInvested());
+            currentValue = currentValue.add(investment.getCurrentValue());
+            totalInvestedBaseCurrency = totalInvestedBaseCurrency.add(investment.getTotalInvestedInBaseCurrency());
+            currentValueBaseCurrency = currentValueBaseCurrency.add(investment.getCurrentValueInBaseCurrency());
+        }
+        
+        BigDecimal totalGainLoss = currentValue.subtract(totalInvested);
+        BigDecimal totalGainLossBaseCurrency = currentValueBaseCurrency.subtract(totalInvestedBaseCurrency);
+        
+        BigDecimal percentageGainLoss = BigDecimal.ZERO;
+        if (totalInvested.compareTo(BigDecimal.ZERO) != 0) {
+            percentageGainLoss = totalGainLoss.divide(totalInvested, 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+        }
         
         return PortfolioSummary.builder()
-                .totalInvestments(count)
-                .totalInvestedAmount(totalInvested)
-                .totalCurrentValue(totalValue)
-                .totalInvestedAmountInEur(totalInvestedEur)
-                .totalCurrentValueInEur(totalValueEur)
-                .totalGainLoss(gainLoss)
-                .totalGainLossPercentage(gainLossPercentage)
-                .investmentTypes(types)
-                .currencies(currencies)
-                .investments(investments)
+                .totalInvestments(investments.size())
+                .totalInvested(totalInvested)
+                .currentValue(currentValue)
+                .totalInvestedBaseCurrency(totalInvestedBaseCurrency)
+                .currentValueBaseCurrency(currentValueBaseCurrency)
+                .totalGainLoss(totalGainLoss)
+                .totalGainLossBaseCurrency(totalGainLossBaseCurrency)
+                .percentageGainLoss(percentageGainLoss)
                 .build();
     }
     
     @Transactional(readOnly = true)
     public List<TypeAllocation> getPortfolioAllocationByType(User user) {
-        List<InvestmentProduct.InvestmentType> types = getDistinctInvestmentTypes(user);
-        BigDecimal totalValue = getTotalCurrentValueInEur(user);
+        List<Object[]> results = investmentRepository.getPortfolioAllocationByType(user);
         
-        return types.stream()
-                .map(type -> {
-                    List<Investment> investmentsByType = findInvestmentsByUserAndProductType(user, type);
-                    BigDecimal typeValue = investmentsByType.stream()
-                            .map(Investment::getTotalValueInEur)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    
-                    BigDecimal percentage = totalValue.compareTo(BigDecimal.ZERO) == 0 
-                            ? BigDecimal.ZERO 
-                            : typeValue.divide(totalValue, 4, java.math.RoundingMode.HALF_UP)
-                                .multiply(BigDecimal.valueOf(100));
-                    
-                    return TypeAllocation.builder()
-                            .type(type)
-                            .value(typeValue)
-                            .percentage(percentage)
-                            .count(investmentsByType.size())
-                            .build();
-                })
+        return results.stream()
+                .map(result -> TypeAllocation.builder()
+                        .type((InvestmentProduct.InvestmentType) result[0])
+                        .count(((Number) result[1]).longValue())
+                        .totalInvested((BigDecimal) result[2])
+                        .build())
                 .toList();
     }
     
     @Transactional(readOnly = true)
     public List<CurrencyAllocation> getPortfolioAllocationByCurrency(User user) {
-        List<String> currencies = getDistinctCurrencies(user);
-        BigDecimal totalValueInEur = getTotalCurrentValueInEur(user);
+        List<Object[]> results = investmentRepository.getPortfolioAllocationByCurrency(user);
         
-        return currencies.stream()
-                .map(currency -> {
-                    List<Investment> investmentsByCurrency = findInvestmentsByUserAndCurrency(user, currency);
-                    BigDecimal currencyValue = investmentsByCurrency.stream()
-                            .map(Investment::getTotalValue)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    
-                    BigDecimal currencyValueInEur = investmentsByCurrency.stream()
-                            .map(Investment::getTotalValueInEur)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    
-                    BigDecimal percentage = totalValueInEur.compareTo(BigDecimal.ZERO) == 0 
-                            ? BigDecimal.ZERO 
-                            : currencyValueInEur.divide(totalValueInEur, 4, java.math.RoundingMode.HALF_UP)
-                                .multiply(BigDecimal.valueOf(100));
-                    
-                    return CurrencyAllocation.builder()
-                            .currency(currency)
-                            .value(currencyValue)
-                            .valueInEur(currencyValueInEur)
-                            .percentage(percentage)
-                            .count(investmentsByCurrency.size())
-                            .build();
-                })
+        return results.stream()
+                .map(result -> CurrencyAllocation.builder()
+                        .currency((String) result[0])
+                        .count(((Number) result[1]).longValue())
+                        .totalInvested((BigDecimal) result[2])
+                        .build())
                 .toList();
     }
     
-    // Inner classes for data transfer
+    @Transactional(readOnly = true)
+    public List<InvestmentProduct.InvestmentType> getDistinctTypesByUser(User user) {
+        return investmentRepository.findDistinctTypesByUser(user);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<String> getDistinctCurrenciesByUser(User user) {
+        return investmentRepository.findDistinctCurrenciesByUser(user);
+    }
+    
+    // Price update helpers
+    
+    @Transactional(readOnly = true)
+    public List<Investment> findInvestmentsNeedingPriceUpdate(User user, int hoursThreshold) {
+        LocalDateTime threshold = LocalDateTime.now().minusHours(hoursThreshold);
+        return investmentRepository.findInvestmentsNeedingPriceUpdate(user, threshold);
+    }
+    
+    public void updateInvestmentPrices(User user) {
+        List<Investment> investments = findInvestmentsNeedingPriceUpdate(user, 4); // 4 hours threshold
+        
+        if (!investments.isEmpty()) {
+            List<InvestmentProduct> products = investments.stream()
+                    .map(Investment::getProduct)
+                    .distinct()
+                    .toList();
+            
+            investmentProductService.updateProductPricesFromApi(products);
+            log.info("Triggered price update for {} products for user {}", products.size(), user.getId());
+        }
+    }
+    
+    // Helper methods for validation
+    
+    @Transactional(readOnly = true)
+    public boolean hasInvestmentInProduct(User user, InvestmentProduct product) {
+        return investmentRepository.existsByUserAndProduct(user, product);
+    }
+    
+    // Portfolio performance tracking
+    
+    @Transactional(readOnly = true)
+    public List<Investment> getProfitableInvestments(User user) {
+        return findByUser(user).stream()
+                .filter(Investment::isProfitable)
+                .toList();
+    }
+    
+    @Transactional(readOnly = true)
+    public List<Investment> getLosingInvestments(User user) {
+        return findByUser(user).stream()
+                .filter(investment -> !investment.isProfitable() && 
+                        investment.getTotalGainLoss().compareTo(BigDecimal.ZERO) < 0)
+                .toList();
+    }
+    
+    // DTOs for portfolio analytics
     
     @lombok.Builder
     @lombok.Data
     public static class PortfolioSummary {
         private long totalInvestments;
-        private BigDecimal totalInvestedAmount;
-        private BigDecimal totalCurrentValue;
-        private BigDecimal totalInvestedAmountInEur;
-        private BigDecimal totalCurrentValueInEur;
+        private BigDecimal totalInvested;
+        private BigDecimal currentValue;
+        private BigDecimal totalInvestedBaseCurrency;
+        private BigDecimal currentValueBaseCurrency;
         private BigDecimal totalGainLoss;
-        private BigDecimal totalGainLossPercentage;
-        private List<InvestmentProduct.InvestmentType> investmentTypes;
-        private List<String> currencies;
-        private List<Investment> investments;
+        private BigDecimal totalGainLossBaseCurrency;
+        private BigDecimal percentageGainLoss;
+        
+        // Formatting helpers
+        public String getFormattedTotalInvested() {
+            return String.format("%.2f €", totalInvestedBaseCurrency);
+        }
+        
+        public String getFormattedCurrentValue() {
+            return String.format("%.2f €", currentValueBaseCurrency);
+        }
+        
+        public String getFormattedTotalGainLoss() {
+            String sign = totalGainLossBaseCurrency.compareTo(BigDecimal.ZERO) >= 0 ? "+" : "";
+            return String.format("%s%.2f €", sign, totalGainLossBaseCurrency);
+        }
+        
+        public String getFormattedPercentageGainLoss() {
+            String sign = percentageGainLoss.compareTo(BigDecimal.ZERO) >= 0 ? "+" : "";
+            return String.format("%s%.2f%%", sign, percentageGainLoss);
+        }
+        
+        public String getGainLossCssClass() {
+            if (totalGainLossBaseCurrency.compareTo(BigDecimal.ZERO) > 0) {
+                return "text-success";
+            } else if (totalGainLossBaseCurrency.compareTo(BigDecimal.ZERO) < 0) {
+                return "text-danger";
+            }
+            return "text-muted";
+        }
     }
     
     @lombok.Builder
     @lombok.Data
     public static class TypeAllocation {
         private InvestmentProduct.InvestmentType type;
-        private BigDecimal value;
-        private BigDecimal percentage;
-        private int count;
+        private long count;
+        private BigDecimal totalInvested;
+        
+        public String getFormattedTotalInvested() {
+            return String.format("%.2f €", totalInvested);
+        }
+        
+        public String getTypeName() {
+            return type != null ? type.getDisplayName() : "Unknown";
+        }
     }
     
     @lombok.Builder
     @lombok.Data
     public static class CurrencyAllocation {
         private String currency;
-        private BigDecimal value;
-        private BigDecimal valueInEur;
-        private BigDecimal percentage;
-        private int count;
+        private long count;
+        private BigDecimal totalInvested;
+        
+        public String getFormattedTotalInvested() {
+            return String.format("%.2f %s", totalInvested, currency);
+        }
     }
 }
