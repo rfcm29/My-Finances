@@ -1,0 +1,277 @@
+/* ==========================================================================
+   Modal & Dropdown Components
+   ========================================================================== */
+
+/* ==========================================================================
+   Modal Styles
+   ========================================================================== */
+.modal-content {
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-intense);
+    overflow: hidden;
+}
+
+.modal-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-2xl);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.modal-title {
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.modal-body {
+    background: var(--surface);
+    padding: var(--spacing-2xl);
+    color: var(--text-primary);
+}
+
+.modal-footer {
+    background: var(--divider);
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-2xl);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+}
+
+/* ==========================================================================
+   Modal Variants
+   ========================================================================== */
+.modal-danger .modal-header {
+    background: rgba(239, 68, 68, 0.05);
+    border-bottom-color: rgba(239, 68, 68, 0.2);
+}
+
+.modal-danger .modal-title {
+    color: var(--danger-solid);
+}
+
+.modal-success .modal-header {
+    background: rgba(16, 185, 129, 0.05);
+    border-bottom-color: rgba(16, 185, 129, 0.2);
+}
+
+.modal-success .modal-title {
+    color: var(--success-solid);
+}
+
+.modal-warning .modal-header {
+    background: rgba(245, 158, 11, 0.05);
+    border-bottom-color: rgba(245, 158, 11, 0.2);
+}
+
+.modal-warning .modal-title {
+    color: var(--warning-solid);
+}
+
+/* ==========================================================================
+   Modal Sizes
+   ========================================================================== */
+.modal-sm .modal-content {
+    box-shadow: var(--shadow-elevated);
+}
+
+.modal-lg .modal-content,
+.modal-xl .modal-content {
+    box-shadow: var(--shadow-intense);
+}
+
+/* ==========================================================================
+   Modal Animations
+   ========================================================================== */
+.modal.fade .modal-dialog {
+    transform: translate(0, -50px);
+    transition: var(--transition-smooth);
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+/* ==========================================================================
+   Modal Backdrop
+   ========================================================================== */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+/* ==========================================================================
+   Close Button
+   ========================================================================== */
+.btn-close {
+    opacity: 0.6;
+    transition: var(--transition-smooth);
+    background: none;
+    border: none;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+}
+
+.btn-close:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.1);
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* ==========================================================================
+   Dropdown Components
+   ========================================================================== */
+.dropdown-menu {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-elevated);
+    padding: var(--spacing-sm) 0;
+    margin-top: var(--spacing-sm);
+    animation: dropdown-fade-in 0.2s ease-out;
+}
+
+@keyframes dropdown-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    transition: var(--transition-quick);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background: var(--primary-light);
+    color: var(--primary-solid);
+    transform: translateX(4px);
+}
+
+.dropdown-item.active {
+    background: var(--primary);
+    color: white;
+}
+
+.dropdown-divider {
+    margin: var(--spacing-sm) 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.dropdown-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Dropdown Toggle
+   ========================================================================== */
+.dropdown-toggle::after {
+    margin-left: var(--spacing-sm);
+    transition: var(--transition-quick);
+}
+
+.dropdown-toggle.show::after {
+    transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   Offcanvas Components
+   ========================================================================== */
+.offcanvas {
+    border: none;
+    box-shadow: var(--shadow-intense);
+    background: var(--surface);
+}
+
+.offcanvas-header {
+    padding: var(--spacing-2xl);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--divider);
+}
+
+.offcanvas-title {
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+}
+
+.offcanvas-body {
+    padding: var(--spacing-2xl);
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Popover Components
+   ========================================================================== */
+.popover {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-elevated);
+    max-width: 300px;
+}
+
+.popover-header {
+    background: var(--divider);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.popover-body {
+    padding: var(--spacing-lg);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+/* ==========================================================================
+   Tooltip Components
+   ========================================================================== */
+.tooltip {
+    z-index: var(--z-index-tooltip);
+}
+
+.tooltip-inner {
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    max-width: 200px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}

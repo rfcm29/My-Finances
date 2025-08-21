@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Base & Reset Styles
+   ========================================================================== */
+
+/* ==========================================================================
+   Global Styles
+   ========================================================================== */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-family-primary);
+    background: var(--background);
+    color: var(--text-primary);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: -0.025em;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.05em;
+    color: var(--text-primary);
+}
+
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-3xl); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+.text-gradient {
+    color: var(--primary);
+}
+
+.gradient-text {
+    color: var(--primary);
+}
+
+.currency-display {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+}
+
+.amount-positive {
+    color: var(--success-solid);
+    font-weight: var(--font-weight-bold);
+    text-shadow: 0 1px 2px rgba(16, 185, 129, 0.1);
+}
+
+.amount-negative {
+    color: var(--danger-solid);
+    font-weight: var(--font-weight-bold);
+    text-shadow: 0 1px 2px rgba(239, 68, 68, 0.1);
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Shadow Utilities */
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-elevated { box-shadow: var(--shadow-elevated); }
+.shadow-intense { box-shadow: var(--shadow-intense); }
+
+/* ==========================================================================
+   Animation Classes
+   ========================================================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ==========================================================================
+   Loading States
+   ========================================================================== */
+.loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+@media print {
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    .navbar,
+    .btn,
+    .modal,
+    .alert {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+}

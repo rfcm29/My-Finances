@@ -1,0 +1,212 @@
+/* ==========================================================================
+   Table Components
+   ========================================================================== */
+
+/* ==========================================================================
+   Base Table Styles
+   ========================================================================== */
+.table {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-subtle);
+    background: var(--surface);
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: var(--divider);
+    border: none;
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    padding: var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    border-bottom: 2px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table tbody tr {
+    transition: var(--transition-quick);
+    border: none;
+}
+
+.table tbody tr:hover {
+    background: var(--primary-light);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table td {
+    padding: var(--spacing-lg);
+    border: none;
+    border-bottom: 1px solid var(--divider);
+    vertical-align: middle;
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Table Variants
+   ========================================================================== */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(102, 126, 234, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--primary-light);
+    transform: translateX(2px);
+}
+
+.table-bordered {
+    border: 1px solid var(--border-color);
+}
+
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   Table Sizes
+   ========================================================================== */
+.table-sm th,
+.table-sm td {
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.table-lg th,
+.table-lg td {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+}
+
+/* ==========================================================================
+   Responsive Tables
+   ========================================================================== */
+.table-responsive {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-subtle);
+}
+
+.table-responsive .table {
+    margin-bottom: 0;
+    box-shadow: none;
+}
+
+/* ==========================================================================
+   Table Actions
+   ========================================================================== */
+.table-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.table-actions .btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+/* ==========================================================================
+   Table Status Indicators
+   ========================================================================== */
+.table .status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: var(--spacing-sm);
+}
+
+.table .status-indicator.active {
+    background-color: var(--success-solid);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+}
+
+.table .status-indicator.inactive {
+    background-color: var(--danger-solid);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
+}
+
+.table .status-indicator.pending {
+    background-color: var(--warning-solid);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+}
+
+/* ==========================================================================
+   Financial Table Styles
+   ========================================================================== */
+.table .amount-cell {
+    font-family: var(--font-family-primary);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+    font-weight: var(--font-weight-semibold);
+    text-align: right;
+}
+
+.table .amount-cell.positive {
+    color: var(--success-solid);
+}
+
+.table .amount-cell.negative {
+    color: var(--danger-solid);
+}
+
+.table .category-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.table .category-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    background: var(--primary-light);
+    color: var(--primary-solid);
+}
+
+/* ==========================================================================
+   Mobile Responsive Tables
+   ========================================================================== */
+@media (max-width: 768px) {
+    .table thead {
+        display: none;
+    }
+    
+    .table tbody tr {
+        display: block;
+        margin-bottom: var(--spacing-lg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        box-shadow: var(--shadow-subtle);
+    }
+    
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-md) var(--spacing-lg);
+        border: none;
+        border-bottom: 1px solid var(--divider);
+    }
+    
+    .table tbody td:last-child {
+        border-bottom: none;
+    }
+    
+    .table tbody td::before {
+        content: attr(data-label);
+        font-weight: var(--font-weight-semibold);
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        font-size: var(--font-size-xs);
+        letter-spacing: 0.05em;
+    }
+}

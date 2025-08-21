@@ -1,0 +1,116 @@
+/* ==========================================================================
+   CSS Custom Properties (Variables)
+   ========================================================================== */
+
+:root {
+    /* ==========================================================================
+       Color System
+       ========================================================================== */
+    
+    /* Primary Colors */
+    --primary: #667eea;
+    --primary-solid: #667eea;
+    --primary-dark: #5a67d8;
+    --primary-light: #eef2ff;
+    
+    /* Accent Colors */
+    --accent: #f093fb;
+    --accent-solid: #f093fb;
+    
+    /* Semantic Colors */
+    --success: #10b981;
+    --success-solid: #10b981;
+    --success-light: #f0fdf4;
+    
+    --warning: #f59e0b;
+    --warning-solid: #f59e0b;
+    --warning-light: #fffbeb;
+    
+    --danger: #ef4444;
+    --danger-solid: #ef4444;
+    --danger-light: #fef2f2;
+    
+    /* Neutral Colors */
+    --background: #fafbfc;
+    --surface: #ffffff;
+    --surface-elevated: #ffffff;
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --text-muted: #a0aec0;
+    --border-color: #e2e8f0;
+    --divider: #f7fafc;
+    
+    /* ==========================================================================
+       Typography Scale
+       ========================================================================== */
+    --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 0.75rem;     /* 12px */
+    --font-size-sm: 0.875rem;    /* 14px */
+    --font-size-base: 1rem;      /* 16px */
+    --font-size-lg: 1.125rem;    /* 18px */
+    --font-size-xl: 1.25rem;     /* 20px */
+    --font-size-2xl: 1.5rem;     /* 24px */
+    --font-size-3xl: 2rem;       /* 32px */
+    --font-size-4xl: 2.5rem;     /* 40px */
+    
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.6;
+    
+    /* ==========================================================================
+       Spacing Scale
+       ========================================================================== */
+    --spacing-xs: 0.25rem;    /* 4px */
+    --spacing-sm: 0.5rem;     /* 8px */
+    --spacing-md: 0.75rem;    /* 12px */
+    --spacing-lg: 1rem;       /* 16px */
+    --spacing-xl: 1.25rem;    /* 20px */
+    --spacing-2xl: 1.5rem;    /* 24px */
+    --spacing-3xl: 2rem;      /* 32px */
+    --spacing-4xl: 2.5rem;    /* 40px */
+    --spacing-5xl: 3rem;      /* 48px */
+    
+    /* ==========================================================================
+       Border Radius Scale
+       ========================================================================== */
+    --radius-none: 0;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+    
+    /* ==========================================================================
+       Shadow Scale
+       ========================================================================== */
+    --shadow-none: none;
+    --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-elevated: 0 10px 40px rgba(0, 0, 0, 0.12);
+    --shadow-intense: 0 20px 60px rgba(0, 0, 0, 0.16);
+    
+    /* ==========================================================================
+       Transition Scale
+       ========================================================================== */
+    --transition-quick: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-elastic: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    /* ==========================================================================
+       Z-Index Scale
+       ========================================================================== */
+    --z-index-dropdown: 1000;
+    --z-index-sticky: 1020;
+    --z-index-fixed: 1030;
+    --z-index-modal-backdrop: 1040;
+    --z-index-modal: 1050;
+    --z-index-popover: 1060;
+    --z-index-tooltip: 1070;
+}

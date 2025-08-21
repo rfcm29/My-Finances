@@ -1,0 +1,193 @@
+/* ==========================================================================
+   Form Components
+   ========================================================================== */
+
+/* ==========================================================================
+   Form Controls
+   ========================================================================== */
+.form-control,
+.form-select {
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: var(--font-weight-medium);
+    transition: var(--transition-smooth);
+    background: var(--surface);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-solid);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.form-label {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+/* ==========================================================================
+   Input Groups
+   ========================================================================== */
+.input-group {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.input-group-text {
+    background: var(--divider);
+    border: 2px solid var(--border-color);
+    border-right: none;
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Form Validation States
+   ========================================================================== */
+.form-control.is-valid,
+.form-select.is-valid {
+    border-color: var(--success-solid);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: var(--danger-solid);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.valid-feedback {
+    color: var(--success-solid);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.invalid-feedback {
+    color: var(--danger-solid);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+/* ==========================================================================
+   Checkboxes & Radio Buttons
+   ========================================================================== */
+.form-check-input {
+    border: 2px solid var(--border-color);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-solid);
+    border-color: var(--primary-solid);
+}
+
+.form-check-input:focus {
+    border-color: var(--primary-solid);
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.form-check-label {
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   File Upload
+   ========================================================================== */
+.form-control[type="file"] {
+    padding: var(--spacing-sm);
+}
+
+.form-control[type="file"]:focus {
+    border-color: var(--primary-solid);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ==========================================================================
+   Form Floating Labels
+   ========================================================================== */
+.form-floating > .form-control,
+.form-floating > .form-select {
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-sm) var(--spacing-lg);
+}
+
+.form-floating > label {
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-sm) var(--spacing-lg);
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    color: var(--primary-solid);
+    transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+/* ==========================================================================
+   Progress Bars
+   ========================================================================== */
+.progress {
+    height: 12px;
+    background: var(--divider);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    background: var(--success);
+    border-radius: var(--radius-md);
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    animation: shimmer 2s infinite;
+}
+
+/* ==========================================================================
+   Range Sliders
+   ========================================================================== */
+.form-range {
+    appearance: none;
+    background: transparent;
+    height: 6px;
+}
+
+.form-range::-webkit-slider-track {
+    background: var(--divider);
+    border-radius: var(--radius-sm);
+    height: 6px;
+}
+
+.form-range::-webkit-slider-thumb {
+    appearance: none;
+    background: var(--primary-solid);
+    border-radius: 50%;
+    height: 20px;
+    width: 20px;
+    margin-top: -7px;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+}
+
+.form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-elevated);
+}
+
+.form-range:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}

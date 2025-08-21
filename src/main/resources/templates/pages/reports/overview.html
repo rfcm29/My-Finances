@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
+<div layout:fragment="content">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-chart-bar me-2"></i>Relatórios</h2>
+            <p class="text-muted">Análise detalhada das suas finanças pessoais</p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group" role="group">
+                <a th:href="@{/reports/monthly}" class="btn btn-outline-primary">
+                    <i class="fas fa-calendar-alt me-2"></i>Mensais
+                </a>
+                <a th:href="@{/reports/yearly}" class="btn btn-outline-primary">
+                    <i class="fas fa-calendar me-2"></i>Anuais
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Cards -->
+    <div class="row g-4">
+        <!-- Income vs Expenses -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Receitas vs Despesas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="incomeExpensesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Despesas por Categoria</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Trend -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Evolução Mensal</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="monthlyTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-coins fa-3x text-success mb-3"></i>
+                    <h3 class="text-success">€1,250.00</h3>
+                    <p class="text-muted mb-0">Receitas este mês</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-3x text-danger mb-3"></i>
+                    <h3 class="text-danger">€850.00</h3>
+                    <p class="text-muted mb-0">Despesas este mês</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-piggy-bank fa-3x text-primary mb-3"></i>
+                    <h3 class="text-primary">€400.00</h3>
+                    <p class="text-muted mb-0">Poupanças este mês</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                    <h3 class="text-info">€5,250.00</h3>
+                    <p class="text-muted mb-0">Saldo total</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        // Sample chart initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Income vs Expenses Chart
+            const ctx1 = document.getElementById('incomeExpensesChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Receitas', 'Despesas'],
+                    datasets: [{
+                        data: [1250, 850],
+                        backgroundColor: ['#10b981', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Category Chart
+            const ctx2 = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: ['Alimentação', 'Transporte', 'Habitação', 'Entretenimento'],
+                    datasets: [{
+                        data: [300, 150, 250, 150],
+                        backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Monthly Trend Chart
+            const ctx3 = document.getElementById('monthlyTrendChart').getContext('2d');
+            new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'Receitas',
+                        data: [1200, 1150, 1300, 1250, 1400, 1250],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                    }, {
+                        label: 'Despesas',
+                        data: [800, 900, 750, 850, 950, 850],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</div>
+
+</html>

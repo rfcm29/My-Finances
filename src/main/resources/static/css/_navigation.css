@@ -1,0 +1,106 @@
+/* ==========================================================================
+   Navigation Components
+   ========================================================================== */
+
+/* ==========================================================================
+   Navbar Styles
+   ========================================================================== */
+.navbar {
+    background: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-subtle);
+    padding: var(--spacing-lg) 0;
+}
+
+.navbar-brand {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-extrabold);
+    background: var(--primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none !important;
+    letter-spacing: -0.05em;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+    transition: var(--transition-smooth);
+}
+
+/* ==========================================================================
+   Navigation Links
+   ========================================================================== */
+.nav-link {
+    font-weight: var(--font-weight-medium);
+    color: var(--text-muted) !important;
+    padding: var(--spacing-md) var(--spacing-xl) !important;
+    border-radius: var(--radius-md);
+    margin: 0 var(--spacing-xs);
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--primary);
+    opacity: 0.1;
+    transition: var(--transition-smooth);
+    z-index: -1;
+}
+
+.nav-link:hover::before,
+.nav-link.active::before {
+    left: 0;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary-solid) !important;
+    transform: translateY(-2px);
+    background: rgba(102, 126, 234, 0.08) !important;
+    border-radius: var(--radius-md);
+}
+
+.nav-link i {
+    margin-right: var(--spacing-sm);
+    transition: var(--transition-smooth);
+}
+
+.nav-link:hover i {
+    transform: scale(1.1);
+}
+
+/* ==========================================================================
+   Dropdown Menus
+   ========================================================================== */
+.dropdown-menu {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-soft);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--primary-light);
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Responsive Navigation
+   ========================================================================== */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: var(--font-size-xl);
+    }
+    
+    .nav-link {
+        padding: var(--spacing-sm) var(--spacing-lg) !important;
+    }
+}

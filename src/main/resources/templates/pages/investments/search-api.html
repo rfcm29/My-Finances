@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/main}">
+
+<head>
+    <title>Pesquisar Produtos - MyFinances</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 text-gray-800">
+                            <i class="fas fa-search me-2"></i>Pesquisar Produtos de Investimento
+                        </h1>
+                        <div>
+                            <a th:href="@{/investments}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Voltar ao Portfolio
+                            </a>
+                            <a th:href="@{/investments/products}" class="btn btn-info">
+                                <i class="fas fa-list me-1"></i> Ver Produtos Salvos
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Search Form -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Pesquisar via Yahoo Finance API</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/investments/products/search-api}" method="post" th:object="${searchForm}">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="symbols">Símbolos (separados por vírgula)</label>
+                                            <input type="text" class="form-control" id="symbols" th:field="*{symbols}" 
+                                                   placeholder="Ex: AAPL, MSFT, GOOGL" required>
+                                            <small class="form-text text-muted">
+                                                Digite os símbolos dos ativos separados por vírgula ou espaço.
+                                            </small>
+                                            <div th:if="${#fields.hasErrors('symbols')}" class="invalid-feedback d-block">
+                                                <span th:errors="*{symbols}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="region">Região</label>
+                                            <select class="form-control" id="region" th:field="*{region}">
+                                                <option value="US">Estados Unidos</option>
+                                                <option value="GB">Reino Unido</option>
+                                                <option value="DE">Alemanha</option>
+                                                <option value="FR">França</option>
+                                                <option value="CA">Canadá</option>
+                                                <option value="AU">Austrália</option>
+                                                <option value="JP">Japão</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="saveToProfile" 
+                                                       th:field="*{saveToProfile}">
+                                                <label class="form-check-label" for="saveToProfile">
+                                                    <i class="fas fa-bookmark text-primary"></i> Salvar no meu perfil
+                                                </label>
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                <i class="fas fa-info-circle"></i> Produtos são sempre salvos na base de dados quando encontrados
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i> Pesquisar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Search Results -->
+                    <div th:if="${searchPerformed}" class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Resultados da Pesquisa</h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${products != null and !products.empty}" class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Símbolo</th>
+                                            <th>Nome</th>
+                                            <th>Tipo</th>
+                                            <th>Preço Atual</th>
+                                            <th>Moeda</th>
+                                            <th>Exchange</th>
+                                            <th>P/E</th>
+                                            <th>Market Cap</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="product : ${products}">
+                                            <td>
+                                                <strong th:text="${product.symbol}">AAPL</strong>
+                                            </td>
+                                            <td th:text="${product.name}">Apple Inc.</td>
+                                            <td>
+                                                <span class="badge badge-info" th:text="${product.type.displayName}">Stock</span>
+                                            </td>
+                                            <td th:text="${product.formattedPrice}">150.00 USD</td>
+                                            <td>
+                                                <span class="badge badge-secondary" th:text="${product.currency}">USD</span>
+                                            </td>
+                                            <td th:text="${product.exchange}">NASDAQ</td>
+                                            <td th:text="${product.formattedPeRatio}">25.5</td>
+                                            <td th:text="${product.formattedMarketCap}">2.5T</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <form th:action="@{/investments/products/save/{id}(id=${product.id})}" 
+                                                          method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-info" 
+                                                                title="Salvar no perfil">
+                                                            <i class="fas fa-save"></i>
+                                                        </button>
+                                                    </form>
+                                                    <a th:href="@{/investments/add(productId=${product.id})}"
+                                                       class="btn btn-sm btn-success" title="Investir">
+                                                        <i class="fas fa-plus"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div th:if="${products == null or products.empty}" class="text-center text-muted">
+                                <i class="fas fa-search fa-3x mb-3"></i>
+                                <p>Nenhum produto encontrado para os símbolos pesquisados.</p>
+                                <p class="small">Verifique se os símbolos estão corretos e se existem no mercado selecionado.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Help Section -->
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Como usar</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Exemplos de Símbolos:</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Ações:</strong> AAPL, MSFT, GOOGL, TSLA</li>
+                                        <li><strong>ETFs:</strong> SPY, QQQ, VTI, VWCE</li>
+                                        <li><strong>Índices:</strong> ^GSPC (S&P 500), ^IXIC (NASDAQ)</li>
+                                        <li><strong>Cripto:</strong> BTC-USD, ETH-USD</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Regiões Suportadas:</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>US:</strong> Mercados americanos (NYSE, NASDAQ)</li>
+                                        <li><strong>GB:</strong> Londres (LSE)</li>
+                                        <li><strong>DE:</strong> Frankfurt (XETRA)</li>
+                                        <li><strong>FR:</strong> Paris (Euronext)</li>
+                                        <li><strong>CA:</strong> Toronto (TSX)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-3" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Dica:</strong> Os dados são fornecidos pela Yahoo Finance API. 
+                                Certifique-se de usar os símbolos corretos para cada mercado.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

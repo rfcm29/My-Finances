@@ -1,0 +1,364 @@
+/* ==========================================================================
+   Unified Button System - MyFinances
+   ========================================================================== */
+
+/* ==========================================================================
+   Base Button Design (Consistent across all variants)
+   ========================================================================== */
+.btn {
+    font-family: var(--font-family-primary);
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    cursor: pointer;
+    user-select: none;
+    text-transform: none;
+    letter-spacing: 0.025em;
+}
+
+/* Universal hover effect for all buttons */
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.15);
+    opacity: 0;
+    transition: var(--transition-smooth);
+    border-radius: inherit;
+    z-index: 1;
+}
+
+.btn:hover::before {
+    opacity: 1;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+/* Icon styling within buttons */
+.btn i {
+    position: relative;
+    z-index: 2;
+}
+
+.btn .spinner-border {
+    position: relative;
+    z-index: 2;
+}
+
+/* ==========================================================================
+   Semantic Button Colors - Action-Based
+   ========================================================================== */
+
+/* PRIMARY - Main actions (create, save, submit) */
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary-solid);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: white;
+}
+
+/* SUCCESS - Positive actions (confirm, approve, complete) */
+.btn-success {
+    background: var(--success);
+    color: white;
+    border-color: var(--success-solid);
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background: #059669;
+    border-color: #047857;
+    color: white;
+}
+
+/* DANGER - Destructive actions (delete, remove, cancel) */
+.btn-danger {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger-solid);
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+    background: #dc2626;
+    border-color: #b91c1c;
+    color: white;
+}
+
+/* WARNING - Caution actions (archive, suspend, modify) */
+.btn-warning {
+    background: var(--warning);
+    color: white;
+    border-color: var(--warning-solid);
+}
+
+.btn-warning:hover,
+.btn-warning:focus {
+    background: #d97706;
+    border-color: #b45309;
+    color: white;
+}
+
+/* INFO - Informational actions (view, details, info) */
+.btn-info {
+    background: #0ea5e9;
+    color: white;
+    border-color: #0ea5e9;
+}
+
+.btn-info:hover,
+.btn-info:focus {
+    background: #0284c7;
+    border-color: #0369a1;
+    color: white;
+}
+
+/* SECONDARY - Secondary actions (back, cancel, dismiss) */
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+    border-color: #6b7280;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background: #4b5563;
+    border-color: #374151;
+    color: white;
+}
+
+/* Custom classes removed - using semantic Bootstrap classes instead */
+
+/* ==========================================================================
+   Outline Button Variants
+   ========================================================================== */
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary-solid);
+    border-color: var(--primary-solid);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary-solid);
+}
+
+.btn-outline-success {
+    background: transparent;
+    color: var(--success-solid);
+    border-color: var(--success-solid);
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus {
+    background: var(--success);
+    color: white;
+    border-color: var(--success-solid);
+}
+
+.btn-outline-danger {
+    background: transparent;
+    color: var(--danger-solid);
+    border-color: var(--danger-solid);
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger-solid);
+}
+
+.btn-outline-warning {
+    background: transparent;
+    color: var(--warning-solid);
+    border-color: var(--warning-solid);
+}
+
+.btn-outline-warning:hover,
+.btn-outline-warning:focus {
+    background: var(--warning);
+    color: var(--text-primary);
+    border-color: var(--warning-solid);
+}
+
+.btn-outline-info {
+    background: transparent;
+    color: #0ea5e9;
+    border-color: #0ea5e9;
+}
+
+.btn-outline-info:hover,
+.btn-outline-info:focus {
+    background: #0ea5e9;
+    color: white;
+    border-color: #0ea5e9;
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background: var(--text-secondary);
+    color: white;
+    border-color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Button Sizes
+   ========================================================================== */
+.btn-sm {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-md);
+}
+
+.btn-lg {
+    padding: var(--spacing-lg) var(--spacing-3xl);
+    font-size: var(--font-size-lg);
+    border-radius: var(--radius-xl);
+}
+
+/* ==========================================================================
+   Button States
+   ========================================================================== */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+    pointer-events: none;
+}
+
+.btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* ==========================================================================
+   Button Groups
+   ========================================================================== */
+.btn-group .btn {
+    border-radius: 0;
+    margin-right: -2px;
+}
+
+.btn-group .btn:first-child {
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+.btn-group .btn:last-child {
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    margin-right: 0;
+}
+
+.btn-group .btn:only-child {
+    border-radius: var(--radius-lg);
+}
+
+/* ==========================================================================
+   Close Button
+   ========================================================================== */
+.btn-close {
+    background: none;
+    border: none;
+    opacity: 0.6;
+    transition: var(--transition-smooth);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    width: auto;
+    height: auto;
+}
+
+.btn-close:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.1);
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* ==========================================================================
+   Navbar Toggle
+   ========================================================================== */
+.navbar-toggler {
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+/* ==========================================================================
+   Responsive Button Styles
+   ========================================================================== */
+@media (max-width: 768px) {
+    .btn {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        font-size: var(--font-size-sm);
+    }
+    
+    .btn-lg {
+        padding: var(--spacing-md) var(--spacing-xl);
+        font-size: var(--font-size-base);
+    }
+}
+
+@media (max-width: 576px) {
+    .btn {
+        width: 100%;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .btn:last-child {
+        margin-bottom: 0;
+    }
+    
+    .btn-group .btn {
+        width: auto;
+        margin-bottom: 0;
+    }
+}

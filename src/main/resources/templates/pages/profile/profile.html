@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
+<div layout:fragment="content">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-user me-2"></i>Perfil do Utilizador</h2>
+            <p class="text-muted">Gerir a sua informação pessoal e preferências</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Info -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-5x text-muted"></i>
+                    </div>
+                    <h4 th:text="${username}">Nome do Utilizador</h4>
+                    <p class="text-muted">Membro desde Janeiro 2024</p>
+                    <button class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-camera me-2"></i>Alterar Foto
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Estatísticas Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="border-end">
+                                <h4 class="text-primary">156</h4>
+                                <small class="text-muted">Transações</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h4 class="text-success">€5,250</h4>
+                            <small class="text-muted">Saldo Total</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-info">5</h4>
+                                <small class="text-muted">Contas</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-warning">3</h4>
+                            <small class="text-muted">Investimentos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Details -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Informações Pessoais</h5>
+                </div>
+                <div class="card-body">
+                    <form class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">Primeiro Nome</label>
+                                <input type="text" class="form-control" id="firstName" value="João" required>
+                                <div class="invalid-feedback">
+                                    Por favor, introduza o primeiro nome.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Último Nome</label>
+                                <input type="text" class="form-control" id="lastName" value="Silva" required>
+                                <div class="invalid-feedback">
+                                    Por favor, introduza o último nome.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" value="joao.silva@email.com" required>
+                                <div class="invalid-feedback">
+                                    Por favor, introduza um email válido.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Telefone</label>
+                                <input type="tel" class="form-control" id="phone" value="+351 912 345 678">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dateOfBirth" class="form-label">Data de Nascimento</label>
+                                <input type="date" class="form-control" id="dateOfBirth" value="1990-05-15">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="currency" class="form-label">Moeda Principal</label>
+                                <select class="form-select" id="currency">
+                                    <option value="EUR" selected>Euro (EUR)</option>
+                                    <option value="USD">Dólar Americano (USD)</option>
+                                    <option value="GBP">Libra Esterlina (GBP)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Morada</label>
+                            <input type="text" class="form-control" id="address" value="Rua das Flores, 123">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="city" class="form-label">Cidade</label>
+                                <input type="text" class="form-control" id="city" value="Lisboa">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="postalCode" class="form-label">Código Postal</label>
+                                <input type="text" class="form-control" id="postalCode" value="1000-123">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="country" class="form-label">País</label>
+                                <select class="form-select" id="country">
+                                    <option value="PT" selected>Portugal</option>
+                                    <option value="ES">Espanha</option>
+                                    <option value="FR">França</option>
+                                    <option value="DE">Alemanha</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Security Section -->
+                        <h6 class="mb-3">Segurança</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="currentPassword" class="form-label">Password Atual</label>
+                                <input type="password" class="form-control" id="currentPassword">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="newPassword" class="form-label">Nova Password</label>
+                                <input type="password" class="form-control" id="newPassword">
+                                <div class="form-text">Deixe em branco se não quiser alterar a password.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmPassword" class="form-label">Confirmar Nova Password</label>
+                                <input type="password" class="form-control" id="confirmPassword">
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Preferences Section -->
+                        <h6 class="mb-3">Preferências</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                    <label class="form-check-label" for="emailNotifications">
+                                        Receber notificações por email
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="monthlyReports" checked>
+                                    <label class="form-check-label" for="monthlyReports">
+                                        Relatórios mensais automáticos
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Guardar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

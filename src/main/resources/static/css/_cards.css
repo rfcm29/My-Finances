@@ -1,0 +1,602 @@
+/* ==========================================================================
+   Unified Card System - MyFinances
+   ========================================================================== */
+
+/* ==========================================================================
+   Base Card Design (Consistent across all variants)
+   ========================================================================== */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-subtle);
+    transition: var(--transition-smooth);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Universal hover effect for all cards */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary);
+    opacity: 0;
+    transition: var(--transition-smooth);
+    z-index: 1;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(102, 126, 234, 0.02);
+    opacity: 0;
+    transition: var(--transition-smooth);
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-elevated);
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+.card:hover::after {
+    opacity: 1;
+}
+
+/* Card Structure */
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-2xl);
+    position: relative;
+    z-index: 2;
+}
+
+.card-body {
+    padding: var(--spacing-2xl);
+    position: relative;
+    z-index: 2;
+}
+
+.card-footer {
+    background: var(--divider);
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    position: relative;
+    z-index: 2;
+}
+
+.card-title {
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.card-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.card-text {
+    color: var(--text-primary);
+    line-height: var(--line-height-relaxed);
+}
+
+/* ==========================================================================
+   Card Variants by Function
+   ========================================================================== */
+
+/* PRIMARY Cards - Main content/actions */
+.card-primary {
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.card-primary::before {
+    background: var(--primary);
+}
+
+.card-primary .card-header {
+    background: rgba(102, 126, 234, 0.05);
+    border-bottom-color: rgba(102, 126, 234, 0.2);
+}
+
+/* SUCCESS Cards - Positive outcomes/income */
+.card-success {
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.card-success::before {
+    background: var(--success);
+}
+
+.card-success .card-header {
+    background: rgba(16, 185, 129, 0.05);
+    border-bottom-color: rgba(16, 185, 129, 0.2);
+}
+
+/* DANGER Cards - Warnings/expenses/errors */
+.card-danger {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.card-danger::before {
+    background: var(--danger);
+}
+
+.card-danger .card-header {
+    background: rgba(239, 68, 68, 0.05);
+    border-bottom-color: rgba(239, 68, 68, 0.2);
+}
+
+/* WARNING Cards - Caution/pending items */
+.card-warning {
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.card-warning::before {
+    background: var(--warning);
+}
+
+.card-warning .card-header {
+    background: rgba(245, 158, 11, 0.05);
+    border-bottom-color: rgba(245, 158, 11, 0.2);
+}
+
+/* INFO Cards - Information/details */
+.card-info {
+    border-color: rgba(14, 165, 233, 0.3);
+}
+
+.card-info::before {
+    background: #0ea5e9;
+}
+
+.card-info .card-header {
+    background: rgba(14, 165, 233, 0.05);
+    border-bottom-color: rgba(14, 165, 233, 0.2);
+}
+
+/* ==========================================================================
+   Financial Overview Cards (Enhanced with unified base)
+   ========================================================================== */
+.financial-overview-card {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-subtle);
+    transition: var(--transition-smooth);
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    height: 100%;
+}
+
+.financial-overview-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(102, 126, 234, 0.01);
+    opacity: 0;
+    transition: var(--transition-smooth);
+    z-index: 1;
+}
+
+.financial-overview-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-elevated);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.financial-overview-card:hover::before {
+    opacity: 1;
+}
+
+/* Financial Card Structure */
+.financial-card-header {
+    padding: var(--spacing-2xl) var(--spacing-2xl) var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 2;
+}
+
+.financial-card-body {
+    padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+    position: relative;
+    z-index: 2;
+}
+
+.card-accent-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    transition: var(--transition-smooth);
+}
+
+.financial-overview-card:hover .card-accent-line {
+    height: 6px;
+}
+
+/* Icon Styling for Financial Cards */
+.card-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    transition: var(--transition-smooth);
+    position: relative;
+}
+
+.card-icon-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0.1;
+    transition: var(--transition-smooth);
+}
+
+.financial-overview-card:hover .card-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Financial Metric Typography */
+.metric-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--spacing-sm);
+}
+
+.metric-value {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-extrabold);
+    line-height: 1;
+    margin-bottom: var(--spacing-sm);
+    background: var(--text-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.financial-overview-card:hover .metric-value {
+    background: var(--primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.metric-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Trend Badges & Status */
+.card-trend {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.trend-badge {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+.trend-badge.trend-up {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-solid);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.trend-badge.trend-down {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-solid);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.card-status {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.card-status.status-positive {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success-solid);
+}
+
+.card-status.status-negative {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger-solid);
+}
+
+/* Financial Card Specific Styling */
+.balance-card {
+    border-left: 3px solid transparent;
+}
+
+.balance-card:hover {
+    border-left-color: var(--primary-solid);
+}
+
+.balance-card .balance-icon {
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary-solid);
+}
+
+.balance-card .balance-accent {
+    background: var(--primary);
+}
+
+.income-card .income-icon {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-solid);
+}
+
+.income-card .income-accent {
+    background: var(--success);
+}
+
+.expense-card .expense-icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-solid);
+}
+
+.expense-card .expense-accent {
+    background: var(--danger);
+}
+
+.net-card .net-icon.net-positive {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-solid);
+}
+
+.net-card .net-icon.net-negative {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-solid);
+}
+
+.net-card .net-accent.accent-positive {
+    background: var(--success);
+}
+
+.net-card .net-accent.accent-negative {
+    background: var(--warning);
+}
+
+/* Account Count Styling */
+.account-count {
+    color: var(--primary-solid);
+    font-weight: var(--font-weight-bold);
+}
+
+/* ==========================================================================
+   Transaction Items (Unified with card base)
+   ========================================================================== */
+.transaction-item {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid transparent;
+    transition: var(--transition-smooth);
+    position: relative;
+}
+
+.transaction-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(102, 126, 234, 0.01);
+    opacity: 0;
+    transition: var(--transition-smooth);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.transaction-item:hover {
+    transform: translateX(8px);
+    border-left-color: var(--primary-solid);
+    box-shadow: var(--shadow-soft);
+}
+
+.transaction-item:hover::after {
+    opacity: 1;
+}
+
+.transaction-item.income {
+    border-left-color: var(--success-solid);
+}
+
+.transaction-item.expense {
+    border-left-color: var(--danger-solid);
+}
+
+/* ==========================================================================
+   Auth Cards (Login/Register)
+   ========================================================================== */
+.auth-container {
+    min-height: 100vh;
+    background: var(--background);
+}
+
+.auth-card {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-elevated);
+    border: 1px solid var(--border-color);
+    transition: var(--transition-smooth);
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary);
+    opacity: 0;
+    transition: var(--transition-smooth);
+}
+
+.auth-card:hover::before {
+    opacity: 1;
+}
+
+.brand-logo {
+    font-size: var(--font-size-3xl);
+    color: var(--primary-solid);
+}
+
+/* ==========================================================================
+   Status Badges (Unified Design)
+   ========================================================================== */
+.badge {
+    border-radius: var(--radius-full);
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid transparent;
+}
+
+.badge-success {
+    background: var(--success-light);
+    color: var(--success-solid);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.badge-danger {
+    background: var(--danger-light);
+    color: var(--danger-solid);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.badge-warning {
+    background: var(--warning-light);
+    color: var(--warning-solid);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.badge-primary {
+    background: var(--primary-light);
+    color: var(--primary-solid);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.badge-info {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+    border-color: rgba(14, 165, 233, 0.3);
+}
+
+.badge-secondary {
+    background: var(--divider);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+/* ==========================================================================
+   Responsive Card Styles
+   ========================================================================== */
+@media (max-width: 768px) {
+    .card-header,
+    .card-body,
+    .card-footer {
+        padding: var(--spacing-xl);
+    }
+    
+    .financial-card-header {
+        padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-md);
+    }
+    
+    .financial-card-body {
+        padding: 0 var(--spacing-xl) var(--spacing-xl);
+    }
+    
+    .card-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        font-size: var(--font-size-lg);
+    }
+    
+    .metric-value {
+        font-size: var(--font-size-3xl);
+    }
+}
+
+@media (max-width: 576px) {
+    .card-header,
+    .card-body,
+    .card-footer {
+        padding: var(--spacing-lg);
+    }
+    
+    .financial-card-header {
+        padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-sm);
+    }
+    
+    .financial-card-body {
+        padding: 0 var(--spacing-lg) var(--spacing-lg);
+    }
+    
+    .metric-value {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .financial-overview-card {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .transaction-item {
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
+    }
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
+<div layout:fragment="content">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-bullseye me-2"></i>Orçamentos</h2>
+            <p class="text-muted">Gerir e controlar os seus orçamentos mensais</p>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/budgets/add}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Novo Orçamento
+            </a>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-bullseye"></i>
+        </div>
+        <h3>Nenhum orçamento criado</h3>
+        <p>Comece por criar o seu primeiro orçamento para controlar melhor as suas despesas por categoria.</p>
+        <a th:href="@{/budgets/add}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus me-2"></i>Criar Primeiro Orçamento
+        </a>
+    </div>
+</div>
+
+</html>

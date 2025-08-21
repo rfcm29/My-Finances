@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
+<div layout:fragment="content">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-calendar-alt me-2"></i>Relatórios Mensais</h2>
+            <p class="text-muted">Análise detalhada das suas finanças mensais</p>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/reports}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Month Selector -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <label for="monthSelect" class="form-label mb-0">Selecionar Mês:</label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select" id="monthSelect">
+                        <option value="2024-01">Janeiro 2024</option>
+                        <option value="2024-02">Fevereiro 2024</option>
+                        <option value="2024-03">Março 2024</option>
+                        <option value="2024-04">Abril 2024</option>
+                        <option value="2024-05">Maio 2024</option>
+                        <option value="2024-06" selected>Junho 2024</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        <i class="fas fa-sync-alt me-2"></i>Atualizar Relatório
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Summary -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-arrow-up fa-2x mb-2"></i>
+                    <h4>€1,250.00</h4>
+                    <p class="mb-0">Total Receitas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-arrow-down fa-2x mb-2"></i>
+                    <h4>€850.00</h4>
+                    <p class="mb-0">Total Despesas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-balance-scale fa-2x mb-2"></i>
+                    <h4>€400.00</h4>
+                    <p class="mb-0">Saldo Mensal</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-percentage fa-2x mb-2"></i>
+                    <h4>32%</h4>
+                    <p class="mb-0">Taxa Poupança</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Tables -->
+    <div class="row g-4">
+        <!-- Income Breakdown -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Receitas por Categoria</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Categoria</th>
+                                    <th class="text-end">Valor</th>
+                                    <th class="text-end">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><i class="fas fa-briefcase text-primary me-2"></i>Salário</td>
+                                    <td class="text-end text-success fw-bold">€1,100.00</td>
+                                    <td class="text-end">88%</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-laptop-code text-info me-2"></i>Freelance</td>
+                                    <td class="text-end text-success fw-bold">€150.00</td>
+                                    <td class="text-end">12%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Breakdown -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Despesas por Categoria</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Categoria</th>
+                                    <th class="text-end">Valor</th>
+                                    <th class="text-end">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><i class="fas fa-utensils text-warning me-2"></i>Alimentação</td>
+                                    <td class="text-end text-danger fw-bold">€300.00</td>
+                                    <td class="text-end">35%</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-home text-primary me-2"></i>Habitação</td>
+                                    <td class="text-end text-danger fw-bold">€250.00</td>
+                                    <td class="text-end">29%</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-car text-info me-2"></i>Transporte</td>
+                                    <td class="text-end text-danger fw-bold">€150.00</td>
+                                    <td class="text-end">18%</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-gamepad text-success me-2"></i>Entretenimento</td>
+                                    <td class="text-end text-danger fw-bold">€150.00</td>
+                                    <td class="text-end">18%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <div class="btn-group">
+                <button class="btn btn-outline-primary" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf me-2"></i>Exportar PDF
+                </button>
+                <button class="btn btn-outline-success" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                </button>
+                <button class="btn btn-outline-info" onclick="exportToCSV()">
+                    <i class="fas fa-file-csv me-2"></i>Exportar CSV
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        function generateReport() {
+            const month = document.getElementById('monthSelect').value;
+            console.log('Generating report for:', month);
+            // Implementation would fetch data for selected month
+        }
+
+        function exportToPDF() {
+            console.log('Exporting to PDF...');
+            // Implementation for PDF export
+        }
+
+        function exportToExcel() {
+            console.log('Exporting to Excel...');
+            // Implementation for Excel export
+        }
+
+        function exportToCSV() {
+            console.log('Exporting to CSV...');
+            // Implementation for CSV export
+        }
+    </script>
+</div>
+
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
+<div layout:fragment="content">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-cog me-2"></i>Definições</h2>
+            <p class="text-muted">Configurar as suas preferências da aplicação</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Navigation Tabs -->
+        <div class="col-lg-3">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+                <button class="nav-link active" id="v-pills-general-tab" data-bs-toggle="pill"
+                        data-bs-target="#v-pills-general" type="button" role="tab">
+                    <i class="fas fa-sliders-h me-2"></i>Geral
+                </button>
+                <button class="nav-link" id="v-pills-notifications-tab" data-bs-toggle="pill" 
+                        data-bs-target="#v-pills-notifications" type="button" role="tab">
+                    <i class="fas fa-bell me-2"></i>Notificações
+                </button>
+                <button class="nav-link" id="v-pills-security-tab" data-bs-toggle="pill" 
+                        data-bs-target="#v-pills-security" type="button" role="tab">
+                    <i class="fas fa-shield-alt me-2"></i>Segurança
+                </button>
+                <button class="nav-link" id="v-pills-data-tab" data-bs-toggle="pill" 
+                        data-bs-target="#v-pills-data" type="button" role="tab">
+                    <i class="fas fa-database me-2"></i>Dados
+                </button>
+                <button class="nav-link text-danger" id="v-pills-danger-tab" data-bs-toggle="pill" 
+                        data-bs-target="#v-pills-danger" type="button" role="tab">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Zona de Perigo
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="col-lg-9">
+            <div class="tab-content" id="v-pills-tabContent">
+                
+                <!-- General Settings -->
+                <div class="tab-pane fade show active" id="v-pills-general" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Definições Gerais</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="language" class="form-label">Idioma</label>
+                                        <select class="form-select" id="language">
+                                            <option value="pt" selected>Português</option>
+                                            <option value="en">English</option>
+                                            <option value="es">Español</option>
+                                            <option value="fr">Français</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="timezone" class="form-label">Fuso Horário</label>
+                                        <select class="form-select" id="timezone">
+                                            <option value="Europe/Lisbon" selected>Europa/Lisboa</option>
+                                            <option value="Europe/Madrid">Europa/Madrid</option>
+                                            <option value="Europe/Paris">Europa/Paris</option>
+                                            <option value="Europe/London">Europa/Londres</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="dateFormat" class="form-label">Formato de Data</label>
+                                        <select class="form-select" id="dateFormat">
+                                            <option value="dd/MM/yyyy" selected>DD/MM/AAAA</option>
+                                            <option value="MM/dd/yyyy">MM/DD/AAAA</option>
+                                            <option value="yyyy-MM-dd">AAAA-MM-DD</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="numberFormat" class="form-label">Formato de Números</label>
+                                        <select class="form-select" id="numberFormat">
+                                            <option value="pt" selected>1.234,56 (Português)</option>
+                                            <option value="en">1,234.56 (Inglês)</option>
+                                            <option value="fr">1 234,56 (Francês)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="startWeek" class="form-label">Início da Semana</label>
+                                    <select class="form-select" id="startWeek">
+                                        <option value="1" selected>Segunda-feira</option>
+                                        <option value="0">Domingo</option>
+                                        <option value="6">Sábado</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="darkMode">
+                                    <label class="form-check-label" for="darkMode">
+                                        Modo Escuro (Em breve)
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Guardar Alterações
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="tab-pane fade" id="v-pills-notifications" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Notificações</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <h6 class="mb-3">Email</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="emailTransactions" checked>
+                                    <label class="form-check-label" for="emailTransactions">
+                                        Novas transações
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="emailBudgets" checked>
+                                    <label class="form-check-label" for="emailBudgets">
+                                        Alertas de orçamento
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="emailReports" checked>
+                                    <label class="form-check-label" for="emailReports">
+                                        Relatórios mensais
+                                    </label>
+                                </div>
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="emailInvestments">
+                                    <label class="form-check-label" for="emailInvestments">
+                                        Atualizações de investimentos
+                                    </label>
+                                </div>
+
+                                <h6 class="mb-3">Browser</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="browserNotifications" checked>
+                                    <label class="form-check-label" for="browserNotifications">
+                                        Notificações do navegador
+                                    </label>
+                                </div>
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="soundNotifications">
+                                    <label class="form-check-label" for="soundNotifications">
+                                        Sons de notificação
+                                    </label>
+                                </div>
+
+                                <h6 class="mb-3">Frequência</h6>
+                                <div class="mb-3">
+                                    <label for="reportFrequency" class="form-label">Relatórios Automáticos</label>
+                                    <select class="form-select" id="reportFrequency">
+                                        <option value="weekly">Semanal</option>
+                                        <option value="monthly" selected>Mensal</option>
+                                        <option value="quarterly">Trimestral</option>
+                                        <option value="never">Nunca</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Guardar Alterações
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="tab-pane fade" id="v-pills-security" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Segurança</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Mantenha a sua conta segura seguindo as melhores práticas de segurança.
+                            </div>
+
+                            <h6 class="mb-3">Autenticação de Dois Fatores</h6>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <strong>2FA</strong>
+                                    <p class="text-muted mb-0">Proteja a sua conta com autenticação de dois fatores.</p>
+                                </div>
+                                <button class="btn btn-outline-success">
+                                    <i class="fas fa-shield-alt me-2"></i>Ativar
+                                </button>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="mb-3">Sessões Ativas</h6>
+                            <div class="list-group">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Chrome - Windows 10</strong>
+                                        <br>
+                                        <small class="text-muted">Lisboa, Portugal - Ativo agora</small>
+                                    </div>
+                                    <span class="badge bg-success">Atual</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Safari - iPhone</strong>
+                                        <br>
+                                        <small class="text-muted">Lisboa, Portugal - Há 2 horas</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger">Terminar</button>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="mb-3">Definições de Sessão</h6>
+                            <div class="mb-3">
+                                <label for="sessionTimeout" class="form-label">Timeout de Sessão</label>
+                                <select class="form-select" id="sessionTimeout">
+                                    <option value="15">15 minutos</option>
+                                    <option value="30" selected>30 minutos</option>
+                                    <option value="60">1 hora</option>
+                                    <option value="240">4 horas</option>
+                                </select>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+                                <label class="form-check-label" for="rememberMe">
+                                    Permitir "Lembrar-me"
+                                </label>
+                            </div>
+
+                            <button class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Guardar Alterações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data -->
+                <div class="tab-pane fade" id="v-pills-data" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Gestão de Dados</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="mb-3">Exportar Dados</h6>
+                            <p class="text-muted">Exporte todos os seus dados num formato estruturado.</p>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <button class="btn btn-outline-primary w-100">
+                                        <i class="fas fa-file-csv me-2"></i>Exportar CSV
+                                    </button>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <button class="btn btn-outline-success w-100">
+                                        <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                                    </button>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <button class="btn btn-outline-info w-100">
+                                        <i class="fas fa-file-archive me-2"></i>Backup Completo
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="mb-3">Importar Dados</h6>
+                            <div class="mb-3">
+                                <label for="importFile" class="form-label">Selecionar Arquivo</label>
+                                <input type="file" class="form-control" id="importFile" accept=".csv,.xlsx,.json">
+                                <div class="form-text">Formatos suportados: CSV, Excel, JSON</div>
+                            </div>
+                            <button class="btn btn-outline-warning">
+                                <i class="fas fa-upload me-2"></i>Importar Dados
+                            </button>
+
+                            <hr>
+
+                            <h6 class="mb-3">Armazenamento</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h4>1.2 MB</h4>
+                                            <p class="mb-0">Dados utilizados</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h4>156</h4>
+                                            <p class="mb-0">Total de transações</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="tab-pane fade" id="v-pills-danger" role="tabpanel">
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Zona de Perigo</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <strong>Atenção!</strong> As ações nesta secção são irreversíveis.
+                            </div>
+
+                            <h6 class="mb-3">Eliminar Todos os Dados</h6>
+                            <p class="text-muted">
+                                Esta ação eliminará permanentemente todas as suas transações, contas e investimentos.
+                            </p>
+                            <button class="btn btn-outline-danger mb-4" data-bs-toggle="modal" data-bs-target="#deleteDataModal">
+                                <i class="fas fa-trash me-2"></i>Eliminar Todos os Dados
+                            </button>
+
+                            <hr>
+
+                            <h6 class="mb-3">Eliminar Conta</h6>
+                            <p class="text-muted">
+                                Esta ação eliminará permanentemente a sua conta e todos os dados associados.
+                            </p>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                <i class="fas fa-user-times me-2"></i>Eliminar Conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Data Modal -->
+    <div class="modal fade" id="deleteDataModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminação de Dados</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem a certeza que pretende eliminar todos os seus dados? Esta ação não pode ser desfeita.</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmDeleteData">
+                        <label class="form-check-label" for="confirmDeleteData">
+                            Sim, quero eliminar todos os meus dados
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteDataBtn" disabled>
+                        Eliminar Dados
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminação de Conta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem a certeza que pretende eliminar a sua conta? Esta ação não pode ser desfeita e perderá acesso a todos os seus dados.</p>
+                    <div class="mb-3">
+                        <label for="confirmDeletePassword" class="form-label">Password para confirmação:</label>
+                        <input type="password" class="form-control" id="confirmDeletePassword">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmDeleteAccount">
+                        <label class="form-check-label" for="confirmDeleteAccount">
+                            Sim, quero eliminar permanentemente a minha conta
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn" disabled>
+                        Eliminar Conta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        // Enable delete buttons only when checkboxes are checked
+        document.getElementById('confirmDeleteData').addEventListener('change', function() {
+            document.getElementById('confirmDeleteDataBtn').disabled = !this.checked;
+        });
+
+        document.getElementById('confirmDeleteAccount').addEventListener('change', function() {
+            const password = document.getElementById('confirmDeletePassword').value;
+            document.getElementById('confirmDeleteAccountBtn').disabled = !(this.checked && password.length > 0);
+        });
+
+        document.getElementById('confirmDeletePassword').addEventListener('input', function() {
+            const checkbox = document.getElementById('confirmDeleteAccount').checked;
+            document.getElementById('confirmDeleteAccountBtn').disabled = !(checkbox && this.value.length > 0);
+        });
+    </script>
+</div>
+
+</html>

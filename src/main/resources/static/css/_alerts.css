@@ -1,0 +1,253 @@
+/* ==========================================================================
+   Alert & Notification Components
+   ========================================================================== */
+
+/* ==========================================================================
+   Base Alert Styles
+   ========================================================================== */
+.alert {
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    border-left: 4px solid;
+    position: relative;
+    overflow: hidden;
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.05;
+    background: currentColor;
+}
+
+.alert .alert-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* ==========================================================================
+   Alert Variants
+   ========================================================================== */
+.alert-success {
+    background: var(--success-light);
+    color: var(--success-solid);
+    border-left-color: var(--success-solid);
+}
+
+.alert-danger {
+    background: var(--danger-light);
+    color: var(--danger-solid);
+    border-left-color: var(--danger-solid);
+}
+
+.alert-warning {
+    background: var(--warning-light);
+    color: var(--warning-solid);
+    border-left-color: var(--warning-solid);
+}
+
+.alert-info {
+    background: var(--primary-light);
+    color: var(--primary-solid);
+    border-left-color: var(--primary-solid);
+}
+
+.alert-secondary {
+    background: var(--divider);
+    color: var(--text-secondary);
+    border-left-color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Dismissible Alerts
+   ========================================================================== */
+.alert-dismissible {
+    padding-right: 3rem;
+}
+
+.alert-dismissible .btn-close {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    padding: var(--spacing-sm);
+    opacity: 0.6;
+    transition: var(--transition-smooth);
+}
+
+.alert-dismissible .btn-close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* ==========================================================================
+   Toast Notifications
+   ========================================================================== */
+.toast {
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-elevated);
+    backdrop-filter: blur(10px);
+    min-width: 300px;
+}
+
+.toast-header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.toast-body {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
+    padding: var(--spacing-lg);
+    font-weight: var(--font-weight-medium);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* Toast Variants */
+.toast.bg-success .toast-body,
+.toast.bg-success .toast-header {
+    background: var(--success-solid);
+    color: white;
+}
+
+.toast.bg-danger .toast-body,
+.toast.bg-danger .toast-header {
+    background: var(--danger-solid);
+    color: white;
+}
+
+.toast.bg-warning .toast-body,
+.toast.bg-warning .toast-header {
+    background: var(--warning-solid);
+    color: var(--text-primary);
+}
+
+.toast.bg-info .toast-body,
+.toast.bg-info .toast-header {
+    background: var(--primary-solid);
+    color: white;
+}
+
+/* ==========================================================================
+   Toast Container
+   ========================================================================== */
+.toast-container {
+    z-index: var(--z-index-tooltip);
+}
+
+.toast-container .toast {
+    margin-bottom: var(--spacing-md);
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ==========================================================================
+   Loading Indicators
+   ========================================================================== */
+.spinner-border {
+    border: 2px solid var(--border-color);
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 1px;
+}
+
+.text-primary .spinner-border {
+    border-color: var(--primary-light);
+    border-right-color: transparent;
+}
+
+.text-success .spinner-border {
+    border-color: rgba(16, 185, 129, 0.3);
+    border-right-color: transparent;
+}
+
+.text-danger .spinner-border {
+    border-color: rgba(239, 68, 68, 0.3);
+    border-right-color: transparent;
+}
+
+@keyframes spinner-border {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   Progress Notifications
+   ========================================================================== */
+.progress-notification {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-soft);
+}
+
+.progress-notification .progress {
+    margin-top: var(--spacing-md);
+    height: 6px;
+}
+
+.progress-notification .progress-text {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: var(--spacing-sm);
+}
+
+/* ==========================================================================
+   Notification Badges
+   ========================================================================== */
+.notification-badge {
+    position: relative;
+}
+
+.notification-badge::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--danger-solid);
+    color: white;
+    border-radius: var(--radius-full);
+    padding: 2px 6px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    min-width: 18px;
+    text-align: center;
+    line-height: 1.2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.notification-badge[data-count="0"]::after,
+.notification-badge:not([data-count])::after {
+    display: none;
+}

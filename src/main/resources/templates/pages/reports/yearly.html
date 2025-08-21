@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+
+<div layout:fragment="content">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-calendar me-2"></i>Relatórios Anuais</h2>
+            <p class="text-muted">Análise detalhada das suas finanças anuais</p>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/reports}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Year Selector -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <label for="yearSelect" class="form-label mb-0">Selecionar Ano:</label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select" id="yearSelect">
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" onclick="generateYearlyReport()">
+                        <i class="fas fa-sync-alt me-2"></i>Atualizar Relatório
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yearly Summary -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-trending-up fa-2x mb-2"></i>
+                    <h4>€15,000.00</h4>
+                    <p class="mb-0">Total Receitas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-trending-down fa-2x mb-2"></i>
+                    <h4>€10,200.00</h4>
+                    <p class="mb-0">Total Despesas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-piggy-bank fa-2x mb-2"></i>
+                    <h4>€4,800.00</h4>
+                    <p class="mb-0">Total Poupado</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-2x mb-2"></i>
+                    <h4>32%</h4>
+                    <p class="mb-0">Taxa Poupança Anual</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Evolution Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Evolução Mensal 2024</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="yearlyEvolutionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quarterly Breakdown -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Q1 (Jan-Mar)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-success">Receitas:</span>
+                        <strong class="text-success">€3,750</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-danger">Despesas:</span>
+                        <strong class="text-danger">€2,550</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-primary">Saldo:</span>
+                        <strong class="text-primary">€1,200</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Q2 (Abr-Jun)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-success">Receitas:</span>
+                        <strong class="text-success">€3,900</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-danger">Despesas:</span>
+                        <strong class="text-danger">€2,650</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-primary">Saldo:</span>
+                        <strong class="text-primary">€1,250</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Q3 (Jul-Set)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-success">Receitas:</span>
+                        <strong class="text-success">€3,650</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-danger">Despesas:</span>
+                        <strong class="text-danger">€2,500</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-primary">Saldo:</span>
+                        <strong class="text-primary">€1,150</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Q4 (Out-Dez)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-success">Receitas:</span>
+                        <strong class="text-success">€3,700</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-danger">Despesas:</span>
+                        <strong class="text-danger">€2,500</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-primary">Saldo:</span>
+                        <strong class="text-primary">€1,200</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Categories -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top 5 Categorias - Receitas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress-item mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-briefcase text-primary me-2"></i>Salário</span>
+                            <strong>€13,200 (88%)</strong>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" style="width: 88%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-laptop-code text-info me-2"></i>Freelance</span>
+                            <strong>€1,800 (12%)</strong>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: 12%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top 5 Categorias - Despesas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress-item mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-utensils text-warning me-2"></i>Alimentação</span>
+                            <strong>€3,600 (35%)</strong>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-home text-primary me-2"></i>Habitação</span>
+                            <strong>€3,000 (29%)</strong>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" style="width: 29%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-car text-info me-2"></i>Transporte</span>
+                            <strong>€1,800 (18%)</strong>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: 18%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-gamepad text-success me-2"></i>Entretenimento</span>
+                            <strong>€1,800 (18%)</strong>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 18%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <div class="btn-group">
+                <button class="btn btn-outline-primary" onclick="exportYearlyToPDF()">
+                    <i class="fas fa-file-pdf me-2"></i>Relatório Anual PDF
+                </button>
+                <button class="btn btn-outline-success" onclick="exportYearlyToExcel()">
+                    <i class="fas fa-file-excel me-2"></i>Dados Excel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Yearly Evolution Chart
+            const ctx = document.getElementById('yearlyEvolutionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                    datasets: [{
+                        label: 'Receitas',
+                        data: [1200, 1250, 1300, 1300, 1350, 1250, 1200, 1225, 1225, 1250, 1200, 1250],
+                        backgroundColor: '#10b981'
+                    }, {
+                        label: 'Despesas',
+                        data: [850, 900, 800, 900, 950, 800, 850, 825, 825, 850, 825, 825],
+                        backgroundColor: '#ef4444'
+                    }, {
+                        label: 'Poupanças',
+                        data: [350, 350, 500, 400, 400, 450, 350, 400, 400, 400, 375, 425],
+                        backgroundColor: '#2563eb'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': €' + context.parsed.y;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        function generateYearlyReport() {
+            const year = document.getElementById('yearSelect').value;
+            console.log('Generating yearly report for:', year);
+            // Implementation would fetch data for selected year
+        }
+
+        function exportYearlyToPDF() {
+            console.log('Exporting yearly report to PDF...');
+            // Implementation for PDF export
+        }
+
+        function exportYearlyToExcel() {
+            console.log('Exporting yearly data to Excel...');
+            // Implementation for Excel export
+        }
+    </script>
+</div>
+
+</html>

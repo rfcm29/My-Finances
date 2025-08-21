@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/main}">
+
+<head>
+    <title>Produtos de Investimento - MyFinances</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 text-gray-800">
+                            <i class="fas fa-bookmark me-2"></i>Meus Produtos Salvos
+                        </h1>
+                        <div>
+                            <a th:href="@{/investments}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Voltar ao Portfolio
+                            </a>
+                            <a th:href="@{/investments/products/search-api}" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i> Pesquisar Novos
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div class="row mb-4">
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Produtos Salvos</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${savedProductsCount}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-bookmark fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Favoritos</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${userProducts.?[isFavorite == true].size()}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tipos Únicos</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${#sets.size(userProducts.![product.type])}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-layer-group fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+                        </div>
+                        <div class="card-body">
+                            <form method="get">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" name="search" placeholder="Pesquisar produtos..." 
+                                               th:value="${searchTerm}">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-control" name="type">
+                                            <option value="">Todos os tipos</option>
+                                            <option th:each="type : ${investmentTypes}" 
+                                                    th:value="${type}" 
+                                                    th:text="${type.displayName}"
+                                                    th:selected="${selectedType == type}">
+                                                Type
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" name="favorites" value="true" id="showFavorites" 
+                                                   th:checked="${showFavorites}">
+                                            <label class="form-check-label" for="showFavorites">
+                                                <i class="fas fa-star text-warning"></i> Só favoritos
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-primary btn-block">
+                                            <i class="fas fa-search"></i> Filtrar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Products Table -->
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Meus Produtos Salvos</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Favorito</th>
+                                            <th>Símbolo</th>
+                                            <th>Nome</th>
+                                            <th>Tipo</th>
+                                            <th>Preço Atual</th>
+                                            <th>Moeda</th>
+                                            <th>Exchange</th>
+                                            <th>P/E</th>
+                                            <th>Market Cap</th>
+                                            <th>Salvo em</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:if="${userProducts.empty}">
+                                            <td colspan="11" class="text-center text-muted py-5">
+                                                <i class="fas fa-bookmark fa-3x mb-3 d-block text-gray-300"></i>
+                                                <h5>Nenhum produto salvo ainda</h5>
+                                                <p class="mb-3">Pesquise e salve produtos de investimento para vê-los aqui.</p>
+                                                <a th:href="@{/investments/products/search-api}" class="btn btn-primary">
+                                                    <i class="fas fa-search me-1"></i> Pesquisar Produtos
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr th:each="userProduct : ${userProducts}">
+                                            <td class="text-center">
+                                                <form th:action="@{/investments/products/toggle-favorite/{id}(id=${userProduct.product.id})}" 
+                                                      method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-link p-0">
+                                                        <i th:class="${userProduct.isFavorite ? 'fas fa-star text-warning' : 'far fa-star text-muted'}"
+                                                           th:title="${userProduct.isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <strong th:text="${userProduct.product.symbol}">AAPL</strong>
+                                            </td>
+                                            <td>
+                                                <div th:text="${userProduct.product.name}">Apple Inc.</div>
+                                                <small class="text-muted" th:text="${userProduct.notes}" th:if="${userProduct.notes}">User notes</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-info" th:text="${userProduct.product.type.displayName}">Stock</span>
+                                            </td>
+                                            <td th:text="${userProduct.product.formattedPrice}">150.00 USD</td>
+                                            <td>
+                                                <span class="badge badge-secondary" th:text="${userProduct.product.currency}">USD</span>
+                                            </td>
+                                            <td th:text="${userProduct.product.exchange}">NASDAQ</td>
+                                            <td th:text="${userProduct.product.formattedPeRatio}">25.5</td>
+                                            <td th:text="${userProduct.product.formattedMarketCap}">2.5T</td>
+                                            <td>
+                                                <small th:text="${#temporals.format(userProduct.savedAt, 'dd/MM/yyyy HH:mm')}">
+                                                    01/01/2024 10:30
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a th:href="@{/investments/add(productId=${userProduct.product.id})}"
+                                                       class="btn btn-sm btn-success" title="Criar investimento">
+                                                        <i class="fas fa-plus"></i>
+                                                    </a>
+                                                    <form th:action="@{/investments/products/remove/{id}(id=${userProduct.product.id})}" 
+                                                          method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                                title="Remover da lista"
+                                                                onclick="return confirm('Deseja mesmo remover este produto da sua lista?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
