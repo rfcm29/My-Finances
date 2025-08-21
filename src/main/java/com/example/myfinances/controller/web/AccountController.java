@@ -59,10 +59,20 @@ public class AccountController {
         BigDecimal savingsBalance = accountService.getTotalBalanceByCategory(user, "Poupanças do Estado");
         BigDecimal creditBalance = accountService.getTotalBalanceByCategory(user, "Crédito");
         BigDecimal cashBalance = accountService.getTotalBalanceByCategory(user, "Dinheiro");
+        BigDecimal digitalBalance = accountService.getTotalBalanceByCategory(user, "Carteiras Digitais");
+        BigDecimal investmentBalance = accountService.getTotalBalanceByCategory(user, "Investimentos");
         
         // Count active and inactive accounts
         long activeCount = accounts.stream().filter(Account::isActive).count();
         long inactiveCount = accounts.stream().filter(account -> !account.isActive()).count();
+        
+        // Check which categories have accounts
+        boolean hasCheckingAccounts = accounts.stream().anyMatch(account -> "Contas Bancárias".equals(account.getCategory()));
+        boolean hasSavingsAccounts = accounts.stream().anyMatch(account -> "Poupanças do Estado".equals(account.getCategory()));
+        boolean hasCreditAccounts = accounts.stream().anyMatch(account -> "Crédito".equals(account.getCategory()));
+        boolean hasCashAccounts = accounts.stream().anyMatch(account -> "Dinheiro".equals(account.getCategory()));
+        boolean hasDigitalAccounts = accounts.stream().anyMatch(account -> "Carteiras Digitais".equals(account.getCategory()));
+        boolean hasInvestmentAccounts = accounts.stream().anyMatch(account -> "Investimentos".equals(account.getCategory()));
         
         model.addAttribute("accounts", accounts);
         model.addAttribute("totalBalance", totalBalance != null ? totalBalance : BigDecimal.ZERO);
@@ -70,6 +80,17 @@ public class AccountController {
         model.addAttribute("savingsBalance", savingsBalance != null ? savingsBalance : BigDecimal.ZERO);
         model.addAttribute("creditBalance", creditBalance != null ? creditBalance : BigDecimal.ZERO);
         model.addAttribute("cashBalance", cashBalance != null ? cashBalance : BigDecimal.ZERO);
+        model.addAttribute("digitalBalance", digitalBalance != null ? digitalBalance : BigDecimal.ZERO);
+        model.addAttribute("investmentBalance", investmentBalance != null ? investmentBalance : BigDecimal.ZERO);
+        
+        // Add boolean flags for showing cards
+        model.addAttribute("hasCheckingAccounts", hasCheckingAccounts);
+        model.addAttribute("hasSavingsAccounts", hasSavingsAccounts);
+        model.addAttribute("hasCreditAccounts", hasCreditAccounts);
+        model.addAttribute("hasCashAccounts", hasCashAccounts);
+        model.addAttribute("hasDigitalAccounts", hasDigitalAccounts);
+        model.addAttribute("hasInvestmentAccounts", hasInvestmentAccounts);
+        
         model.addAttribute("accountCount", activeCount);
         model.addAttribute("activeCount", activeCount);
         model.addAttribute("inactiveCount", inactiveCount);

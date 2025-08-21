@@ -58,7 +58,7 @@ public class HomeController {
         BigDecimal netWorth = transactionService.getNetWorth(user);
         
         Page<Transaction> recentTransactions = transactionService.findTransactionsByUser(
-                user, PageRequest.of(0, 10, Sort.by("date").descending().and(Sort.by("createdAt").descending()))
+                user, PageRequest.of(0, 10, Sort.by("transactionDate").descending().and(Sort.by("createdAt").descending()))
         );
         
         LocalDate startOfMonth = currentMonth.withDayOfMonth(1);

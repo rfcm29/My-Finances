@@ -20,13 +20,18 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"account", "category"})
-@ToString(exclude = {"account", "category"})
+@EqualsAndHashCode(exclude = {"user", "account", "category"})
+@ToString(exclude = {"user", "account", "category"})
 public class Transaction {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @NotNull(message = "Usuário é obrigatório")
+    private User user;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
@@ -46,9 +51,9 @@ public class Transaction {
     @Size(max = 500, message = "Descrição não pode ter mais de 500 caracteres")
     private String description;
     
-    @Column(nullable = false)
+    @Column(name = "transaction_date", nullable = false)
     @NotNull(message = "Data é obrigatória")
-    private LocalDate date;
+    private LocalDate transactionDate;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -76,12 +81,13 @@ public class Transaction {
         updatedAt = LocalDateTime.now();
     }
     
-    public Transaction(Account account, TransactionCategory category, BigDecimal amount, String description, LocalDate date, TransactionType type) {
+    public Transaction(User user, Account account, TransactionCategory category, BigDecimal amount, String description, LocalDate transactionDate, TransactionType type) {
+        this.user = user;
         this.account = account;
         this.category = category;
         this.amount = amount;
         this.description = description;
-        this.date = date;
+        this.transactionDate = transactionDate;
         this.type = type;
     }
     

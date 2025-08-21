@@ -46,7 +46,7 @@ public class TransactionController {
     public String listTransactions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "transactionDate") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String type,
@@ -134,11 +134,12 @@ public class TransactionController {
             }
             
             Transaction transaction = Transaction.builder()
+                    .user(user)  // Set the user explicitly
                     .account(account.get())
                     .category(category.get())
                     .amount(form.getAmount())
                     .description(form.getDescription())
-                    .date(form.getDate())
+                    .transactionDate(form.getDate())
                     .type(form.getType())
                     .build();
             
@@ -181,7 +182,7 @@ public class TransactionController {
         form.setCategoryId(transaction.get().getCategory().getId());
         form.setAmount(transaction.get().getAmount());
         form.setDescription(transaction.get().getDescription());
-        form.setDate(transaction.get().getDate());
+        form.setDate(transaction.get().getTransactionDate());
         form.setType(transaction.get().getType());
         
         model.addAttribute("transactionForm", form);
@@ -233,7 +234,7 @@ public class TransactionController {
             transaction.setCategory(category.get());
             transaction.setAmount(form.getAmount());
             transaction.setDescription(form.getDescription());
-            transaction.setDate(form.getDate());
+            transaction.setTransactionDate(form.getDate());
             transaction.setType(form.getType());
             
             transactionService.updateTransaction(transaction);

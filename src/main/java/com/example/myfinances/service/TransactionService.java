@@ -28,8 +28,12 @@ public class TransactionService {
     private final AccountService accountService;
 
     public Transaction createTransaction(Transaction transaction) {
+        // Ensure user is set from account if not already set
+        if (transaction.getUser() == null && transaction.getAccount() != null) {
+            transaction.setUser(transaction.getAccount().getUser());
+        }
         return createTransaction(transaction.getAccount(), transaction.getCategory(), 
-                transaction.getAmount(), transaction.getDescription(), transaction.getDate(), 
+                transaction.getAmount(), transaction.getDescription(), transaction.getTransactionDate(), 
                 transaction.getType(), transaction.getReceiptUrl());
     }
 
@@ -42,11 +46,12 @@ public class TransactionService {
         }
 
         Transaction transaction = Transaction.builder()
+                .user(account.getUser())  // Set the user from the account
                 .account(account)
                 .category(category)
                 .amount(amount)
                 .description(description)
-                .date(date != null ? date : LocalDate.now())
+                .transactionDate(date != null ? date : LocalDate.now())
                 .type(type)
                 .receiptUrl(receiptUrl)
                 .build();

@@ -147,7 +147,7 @@
                                                     <small class="text-muted">
                                                         <span th:text="${transaction.category.name}">Categoria</span> •
                                                         <span th:text="${transaction.account.name}">Conta</span> •
-                                                        <span th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy')}">01/01/2025</span>
+                                                        <span th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}">01/01/2025</span>
                                                     </small>
                                                 </div>
                                             </div>

@@ -81,8 +81,8 @@
                         <i class="fas fa-sort me-1"></i>Ordenar
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='date', sortDir='desc')}">Data (mais recente)</a></li>
-                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='date', sortDir='asc')}">Data (mais antiga)</a></li>
+                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='transactionDate', sortDir='desc')}">Data (mais recente)</a></li>
+                        <li><a class="dropdown-item" th:href="@{/transactions(sortBy='transactionDate', sortDir='asc')}">Data (mais antiga)</a></li>
                         <li><a class="dropdown-item" th:href="@{/transactions(sortBy='amount', sortDir='desc')}">Valor (maior)</a></li>
                         <li><a class="dropdown-item" th:href="@{/transactions(sortBy='amount', sortDir='asc')}">Valor (menor)</a></li>
                         <li><a class="dropdown-item" th:href="@{/transactions(sortBy='description', sortDir='asc')}">Descrição (A-Z)</a></li>
@@ -105,7 +105,7 @@
                         <tbody>
                             <tr th:each="transaction : ${transactions.content}">
                                 <td>
-                                    <span th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy')}">01/01/2024</span>
+                                    <span th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}">01/01/2024</span>
                                 </td>
                                 <td>
                                     <div class="fw-medium" th:text="${transaction.description}">Descrição da transação</div>

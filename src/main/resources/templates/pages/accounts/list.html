@@ -49,7 +49,7 @@
         <!-- Balance Summary Cards -->
         <div class="row g-3 mb-4">
             <!-- Checking Accounts Card -->
-            <div class="col">
+            <div th:if="${hasCheckingAccounts}" class="col" style="max-width: 300px;">
                 <div class="card card-info">
                     <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
@@ -66,7 +66,7 @@
             </div>
             
             <!-- State Savings Card -->
-            <div class="col">
+            <div th:if="${hasSavingsAccounts}" class="col" style="max-width: 300px;">
                 <div class="card card-success">
                     <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
@@ -83,7 +83,7 @@
             </div>
             
             <!-- Credit Card -->
-            <div class="col">
+            <div th:if="${hasCreditAccounts}" class="col" style="max-width: 300px;">
                 <div class="card card-danger">
                     <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
@@ -100,7 +100,7 @@
             </div>
             
             <!-- Digital Wallets Card -->
-            <div class="col">
+            <div th:if="${hasDigitalAccounts}" class="col" style="max-width: 300px;">
                 <div class="card card-purple">
                     <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
@@ -117,7 +117,7 @@
             </div>
             
             <!-- Cash Card -->
-            <div class="col">
+            <div th:if="${hasCashAccounts}" class="col-12 col-sm-6 col-md-4 col-xl-3">
                 <div class="card card-warning">
                     <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
@@ -134,7 +134,7 @@
             </div>
             
             <!-- Investment Card -->
-            <div class="col">
+            <div th:if="${hasInvestmentAccounts}" class="col" style="max-width: 300px;">
                 <div class="card card-dark">
                     <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
